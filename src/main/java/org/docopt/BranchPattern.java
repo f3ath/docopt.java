@@ -30,14 +30,9 @@ abstract class BranchPattern extends Pattern {
 		}
 		final BranchPattern other = (BranchPattern) obj;
 		if (children == null) {
-			if (other.children != null) {
-				return false;
-			}
+			return other.children == null;
 		}
-		else if (!children.equals(other.children)) {
-			return false;
-		}
-		return true;
+		else return children.equals(other.children);
 	}
 
 	private final List<Pattern> children;

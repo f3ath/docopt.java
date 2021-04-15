@@ -36,8 +36,8 @@ final class Either extends BranchPattern {
 					@Override
 					public int compare(final MatchResult o1,
 							final MatchResult o2) {
-						final Integer s1 = Integer.valueOf(o1.getLeft().size());
-						final Integer s2 = Integer.valueOf(o2.getLeft().size());
+						final Integer s1 = o1.getLeft().size();
+						final Integer s2 = o2.getLeft().size();
 						return s1.compareTo(s2);
 					}
 				});
