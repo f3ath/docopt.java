@@ -8,42 +8,42 @@ import java.util.List;
 
 final class Either extends BranchPattern {
 
-	public Either(final List<? extends Pattern> children) {
-		super(children);
-	}
+    public Either(final List<? extends Pattern> children) {
+        super(children);
+    }
 
-	@Override
-	protected MatchResult match(final List<LeafPattern> left,
-			List<LeafPattern> collected) {
-		if (collected == null) {
-			collected = list();
-		}
+    @Override
+    protected MatchResult match(final List<LeafPattern> left,
+                                List<LeafPattern> collected) {
+        if (collected == null) {
+            collected = list();
+        }
 
-		final List<MatchResult> outcomes = list();
+        final List<MatchResult> outcomes = list();
 
-		for (final Pattern pattern : getChildren()) {
-			final MatchResult m = pattern.match(left, collected);
-			if (m.matched()) {
-				outcomes.add(m);
-			}
-		}
+        for (final Pattern pattern : getChildren()) {
+            final MatchResult m = pattern.match(left, collected);
+            if (m.matched()) {
+                outcomes.add(m);
+            }
+        }
 
-		if (!outcomes.isEmpty()) {
-			// >>> return min(outcomes, key=lambda outcome: len(outcome[1]))
-			{
-				return Collections.min(outcomes, new Comparator<MatchResult>() {
+        if (!outcomes.isEmpty()) {
+            // >>> return min(outcomes, key=lambda outcome: len(outcome[1]))
+            {
+                return Collections.min(outcomes, new Comparator<MatchResult>() {
 
-					@Override
-					public int compare(final MatchResult o1,
-							final MatchResult o2) {
-						final Integer s1 = o1.getLeft().size();
-						final Integer s2 = o2.getLeft().size();
-						return s1.compareTo(s2);
-					}
-				});
-			}
-		}
+                    @Override
+                    public int compare(final MatchResult o1,
+                                       final MatchResult o2) {
+                        final Integer s1 = o1.getLeft().size();
+                        final Integer s2 = o2.getLeft().size();
+                        return s1.compareTo(s2);
+                    }
+                });
+            }
+        }
 
-		return new MatchResult(false, left, collected);
-	}
+        return new MatchResult(false, left, collected);
+    }
 }

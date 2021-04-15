@@ -56,8 +56,7 @@ final class Tokens extends ArrayList<String> {
 	}
 
 	public String current() {
-		final String result = isEmpty() ? null : get(0);
-		return result;
+		return isEmpty() ? null : get(0);
 	}
 
 	public Class<? extends Throwable> getError() {
@@ -77,6 +76,6 @@ final class Tokens extends ArrayList<String> {
 		}
 
 		return new IllegalStateException("Unexpected exception: "
-				+ error.getClass().getName());
+				+ error.getName());
 	}
 }
