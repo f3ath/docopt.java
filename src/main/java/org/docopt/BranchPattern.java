@@ -46,7 +46,7 @@ abstract class BranchPattern extends Pattern {
     protected final List<Pattern> flat(final Class<?>... types) {
 
         if (Py.INSTANCE.in(getClass(), types)) {
-            return Py.INSTANCE.list((Pattern) this);
+            return Py.INSTANCE.list(this);
         }
 
         {

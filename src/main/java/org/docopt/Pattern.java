@@ -21,10 +21,7 @@ abstract class Pattern {
 		final List<List<Pattern>> result = Py.INSTANCE.list();
 		List<List<Pattern>> groups;
 
-		// >>> groups = [[pattern]]
 		{
-			// Can't use "groups = list(list(pattern))" since the argument is
-			// iterable.
 			groups = Py.INSTANCE.list();
 			groups.add(Py.INSTANCE.list(pattern));
 		}
@@ -34,11 +31,6 @@ abstract class Pattern {
 
 			BranchPattern child = null;
 
-			// "If any parent type is the same type as the type of any child, select the first child that is of a type in parents."
-			// >>> if any(t in map(type, children) for t in parents):
-			// >>> child = [c for c in children if type(c) in parents][0]
-			// TODO: I think that the "if" clause is redundant; instead, we just
-			// try to get the child directly.
 			for (final Pattern c : children) {
 				if (PARENTS.contains(c.getClass())) {
 					child = (BranchPattern) c;
