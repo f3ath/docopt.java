@@ -103,4 +103,7 @@ object Py {
         }
         return result
     }
+
+    fun split(self: String): List<String> =
+        list(self.trim { it <= ' ' }.split("\\s+".toRegex()).toTypedArray())
 }

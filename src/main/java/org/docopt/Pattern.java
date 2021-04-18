@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.split;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -181,7 +179,7 @@ abstract class Pattern {
 							e.setValue(Py.INSTANCE.list());
 						}
 						else if (!(e.getValue() instanceof List)) {
-							e.setValue(split(e.getValue().toString()));
+							e.setValue(Py.INSTANCE.split(e.getValue().toString()));
 						}
 					}
 

@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.split;
-
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -535,7 +533,7 @@ public final class Docopt {
 			section = u[2];
 		}
 
-		final List<String> pu = split(section);
+		final List<String> pu = Py.INSTANCE.split(section);
 
 		// @formatter:off
 		// >>> return '( ' + ' '.join(') | (' if s == pu[0] else s for s in pu[1:]) + ' )'

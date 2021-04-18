@@ -84,7 +84,7 @@ internal class Option @JvmOverloads constructor(
                 description = a[2]
             }
             options = options.replace(",".toRegex(), " ").replace("=".toRegex(), " ")
-            for (s in Python.split(options)) {
+            for (s in Py.split(options!!)) {
                 if (s.startsWith("--")) {
                     long = s
                 } else if (s.startsWith("-")) {

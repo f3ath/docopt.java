@@ -110,10 +110,6 @@ public final class Python {
         }
     }
 
-    public static List<String> split(final String self) {
-        return Py.INSTANCE.list(self.trim().split("\\s+"));
-    }
-
     private Python() {
         // Prevent instantiation.
     }
