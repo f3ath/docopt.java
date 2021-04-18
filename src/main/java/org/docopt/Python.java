@@ -113,39 +113,6 @@ public final class Python {
         }
     }
 
-    public static String join(final String self, final Iterable<?> iterable) {
-        final Iterator<?> i = iterable.iterator();
-
-        if (!i.hasNext()) {
-            return "";
-        }
-
-        final StringBuilder sb = new StringBuilder();
-
-        while (i.hasNext()) {
-            sb.append(i.next());
-            sb.append(self);
-        }
-
-        sb.setLength(sb.length() - self.length());
-
-        return sb.toString();
-    }
-
-    public static String[] partition(final String self, final String sep) {
-        final int i = self.indexOf(sep);
-
-        if (i == -1) {
-            return new String[]{self, "", ""};
-        }
-
-        // Always <= s.length
-        final int j = i + sep.length();
-
-        return new String[]{self.substring(0, i), sep,
-                (j < self.length()) ? self.substring(j) : ""};
-    }
-
     public static boolean isUpper(final String self) {
         boolean result = false;
 

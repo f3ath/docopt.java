@@ -1,8 +1,6 @@
 package org.docopt;
 
 import static org.docopt.Python.isUpper;
-import static org.docopt.Python.join;
-import static org.docopt.Python.partition;
 import static org.docopt.Python.split;
 
 import java.io.InputStream;
@@ -84,7 +82,7 @@ public final class Docopt {
 
 		// >>> long, eq, value = tokens.move().partition('=')
 		{
-			final String[] a = partition(tokens.move(), "=");
+			final String[] a = Py.INSTANCE.partition(tokens.move(), "=");
 			$long = a[0];
 			eq = a[1];
 			value = a[2];
@@ -135,7 +133,7 @@ public final class Docopt {
 			}
 
 			throw tokens.error("%s is not a unique prefix: %s?", $long,
-					join(", ", u));
+					Py.INSTANCE.join(", ", u));
 		}
 
 		Option o;
@@ -290,7 +288,7 @@ public final class Docopt {
 		final List<? extends Pattern> result = parseExpr(tokens, options);
 
 		if (tokens.current() != null) {
-			throw tokens.error("unexpected ending: %s", join(" ", tokens));
+			throw tokens.error("unexpected ending: %s", Py.INSTANCE.join(" ", tokens));
 		}
 
 		return new Required(result);
@@ -476,7 +474,7 @@ public final class Docopt {
 		for (String s : parseSection("options:", doc)) {
 			// >>> u, u, s = s.partition(':') # get rid of "options:"
 			{
-				final String[] u = partition(s, ":");
+				final String[] u = Py.INSTANCE.partition(s, ":");
 				s = u[2];
 			}
 
@@ -534,7 +532,7 @@ public final class Docopt {
 	private static String formalUsage(String section) {
 		// >>> u, u, section = section.partition(':')
 		{
-			final String[] u = partition(section, ":");
+			final String[] u = Py.INSTANCE.partition(section, ":");
 			section = u[2];
 		}
 

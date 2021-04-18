@@ -73,4 +73,20 @@ object Py {
     }
 
     fun <T> set(elements: Iterable<T>): Set<T> = elements.toMutableSet()
+
+    fun join(self: String, iterable: Iterable<*>): String = iterable.joinToString(self)
+
+    fun partition(self: String, sep: String): Array<String> {
+        val i = self.indexOf(sep)
+        if (i == -1) {
+            return arrayOf(self, "", "")
+        }
+
+        // Always <= s.length
+        val j = i + sep.length
+        return arrayOf(
+            self.substring(0, i), sep,
+            if (j < self.length) self.substring(j) else ""
+        )
+    }
 }

@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.join;
-
 import java.util.List;
 
 /**
@@ -42,7 +40,7 @@ abstract class BranchPattern extends Pattern {
 	@Override
 	public String toString() {
 		return String.format("%s(%s)", getClass().getSimpleName(),
-				children.isEmpty() ? "" : join(", ", children));
+				children.isEmpty() ? "" : Py.INSTANCE.join(", ", children));
 	}
 
 	@Override

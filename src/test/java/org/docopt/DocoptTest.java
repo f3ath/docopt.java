@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.docopt.Python.partition;
-
 public final class DocoptTest extends TestCase {
 
     private static final TypeReference<Map<String, Object>> TYPE_REFERENCE =
@@ -53,7 +51,7 @@ public final class DocoptTest extends TestCase {
                 final String body;
 
                 {
-                    final String[] u = partition(fixture, "\"\"\"");
+                    final String[] u = Py.INSTANCE.partition(fixture, "\"\"\"");
                     doc1 = u[0];
                     body = u[2];
                 }
@@ -70,7 +68,7 @@ public final class DocoptTest extends TestCase {
                     final String expect;
 
                     {
-                        final String[] u = partition(_case.trim(), "\n");
+                        final String[] u = Py.INSTANCE.partition(_case.trim(), "\n");
                         argv1 = u[0];
                         expect = u[2];
                     }

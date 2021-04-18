@@ -79,7 +79,7 @@ internal class Option @JvmOverloads constructor(
             var options: String
             var description: String
             run {
-                val a = Python.partition(optionDescription.trim { it <= ' ' }, "  ")
+                val a = Py.partition(optionDescription.trim { it <= ' ' }!!, "  "!!)
                 options = a[0]
                 description = a[2]
             }
