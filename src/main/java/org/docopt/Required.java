@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.list;
-
 import java.util.List;
 
 final class Required extends BranchPattern {
@@ -14,7 +12,7 @@ final class Required extends BranchPattern {
 	protected MatchResult match(final List<LeafPattern> left,
 			List<LeafPattern> collected) {
 		if (collected == null) {
-			collected = list();
+			collected = Py.INSTANCE.list();
 		}
 
 		List<LeafPattern> l = left;

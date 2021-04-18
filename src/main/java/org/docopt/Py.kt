@@ -54,29 +54,11 @@ object Py {
         else -> o.toString()
     }
 
-    fun <T> list(elements: Iterable<T>): List<T> {
-        val list: MutableList<T> = list()
-        for (element in elements) {
-            list.add(element)
-        }
-        return list
-    }
+    fun <T> list(elements: Iterable<T>): List<T> = elements.toMutableList()
 
-    fun <T> list(elements: Array<T>): List<T> {
-        val list: MutableList<T> = list()
-        for (element in elements) {
-            list.add(element)
-        }
-        return list
-    }
+    fun <T> list(elements: Array<T>): List<T> = elements.toMutableList()
 
-    fun <T> list(element: T): List<T> {
-        val list: MutableList<T> = list()
-        list.add(element)
-        return list
-    }
+    fun <T> list(element: T): List<T> = mutableListOf(element)
 
-    fun <T> list(): MutableList<T> {
-        return ArrayList()
-    }
+    fun <T> list(): MutableList<T> = mutableListOf()
 }

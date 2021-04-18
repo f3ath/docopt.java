@@ -1,6 +1,5 @@
 package org.docopt;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -80,7 +79,7 @@ public final class Python {
         public static List<String> split(final String pattern,
                                          final String string) {
             if (!hasGrouping(pattern)) {
-                return list(string.split(pattern));
+                return Py.INSTANCE.list(string.split(pattern));
             }
 
             final Matcher matcher = Pattern.compile(pattern, 0).matcher(string);
@@ -112,10 +111,6 @@ public final class Python {
         private Re() {
             // Prevent instantiation.
         }
-    }
-
-    public static <T> List<T> list(final T[] elements) {
-        return Py.INSTANCE.list(elements);
     }
 
     public static <T> List<T> list() {
@@ -194,7 +189,7 @@ public final class Python {
     }
 
     public static List<String> split(final String self) {
-        return list(self.trim().split("\\s+"));
+        return Py.INSTANCE.list(self.trim().split("\\s+"));
     }
 
     private Python() {

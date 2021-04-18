@@ -12,9 +12,9 @@ object Helper {
             .replaceFirst("\\.[^.]+$".toRegex(), "")
     }
 
-    fun argv(argv: String): List<String>? {
-        val u = Python.list(argv.trim { it <= ' ' }
-            .split("\\s+".toRegex()).toTypedArray())
+    fun argv(argv: String): List<String> {
+        val u = argv.trim { it <= ' ' }
+            .split("\\s+".toRegex()).toTypedArray().toMutableList()
         u.removeAt(0)
         return u
     }
