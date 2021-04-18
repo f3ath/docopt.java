@@ -146,11 +146,11 @@ object Py {
         else -> o.toString()
     }
 
-    fun <T> list(elements: Iterable<T>): List<T> = elements.toMutableList()
+    fun <T> list(elements: Iterable<T>): MutableList<T> = elements.toMutableList()
 
-    fun <T> list(elements: Array<T>): List<T> = elements.toMutableList()
+    fun <T> list(elements: Array<T>): MutableList<T> = elements.toMutableList()
 
-    fun <T> list(element: T): List<T> = mutableListOf(element)
+    fun <T> list(element: T): MutableList<T> = mutableListOf(element)
 
     fun <T> list(): MutableList<T> = mutableListOf()
 
