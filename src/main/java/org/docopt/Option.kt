@@ -65,7 +65,7 @@ internal class Option @JvmOverloads constructor(
     override fun toString(): String {
         return String.format(
             "%s(%s, %s, %s, %s)", javaClass.simpleName,
-            Python.repr(short), Python.repr(long), Python.repr(argCount), Python.repr(value)
+            Py.repr(short)
         )
     }
 
@@ -98,7 +98,7 @@ internal class Option @JvmOverloads constructor(
                     "\\[default: (.*)\\]",
                     description, Re.IGNORECASE
                 )
-                value = if (Python.bool(matched)) matched[0] else null
+                value = if (Py.bool(matched)) matched[0] else null
             }
             return Option(short, long, argCount, value)
         }

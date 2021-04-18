@@ -1,6 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.in;
 import static org.docopt.Python.join;
 import static org.docopt.Python.list;
 
@@ -49,7 +48,8 @@ abstract class BranchPattern extends Pattern {
 
 	@Override
 	protected final List<Pattern> flat(final Class<?>... types) {
-		if (in(getClass(), types)) {
+
+        if (Py.INSTANCE.in(getClass(), types)) {
 			return list((Pattern) this);
 		}
 

@@ -1,10 +1,6 @@
 package org.docopt;
 
-import static org.docopt.Python.bool;
-import static org.docopt.Python.in;
 import static org.docopt.Python.list;
-import static org.docopt.Python.plus;
-import static org.docopt.Python.repr;
 
 import java.util.List;
 
@@ -54,15 +50,42 @@ abstract class LeafPattern extends Pattern {
 
 	@Override
 	public String toString() {
+		//        if (o == null) {
+//            return "null";
+//        }
+//
+//        if (o instanceof String) {
+//            return "\"" + o + "\"";
+//        }
+//
+//        if (o instanceof Object[]) {
+//            return Arrays.toString((Object[]) o);
+//        }
+//
+//        return o.toString();
+		//        if (o == null) {
+//            return "null";
+//        }
+//
+//        if (o instanceof String) {
+//            return "\"" + o + "\"";
+//        }
+//
+//        if (o instanceof Object[]) {
+//            return Arrays.toString((Object[]) o);
+//        }
+//
+//        return o.toString();
 		return String.format("%s(%s, %s)", getClass().getSimpleName(),
-				repr(name), repr(value));
+				Py.INSTANCE.repr(name), Py.INSTANCE.repr(value));
 	}
 
 	@Override
 	protected final List<Pattern> flat(final Class<?>... types) {
 		// >>> [self] if not types or type(self) in types else []
 		{
-			if (!bool(types) || in(getClass(), types)) {
+
+			if (!Py.INSTANCE.bool(types) || Py.INSTANCE.in(getClass(), types)) {
 				return list((Pattern) this);
 			}
 
@@ -130,8 +153,14 @@ abstract class LeafPattern extends Pattern {
 
 			if (sameName.isEmpty()) {
 				match.setValue(increment);
+				//        final List<T> c = new ArrayList<T>(a.size() + b.size());
+//
+//        c.addAll(a);
+//        c.addAll(b);
+//
+//        return c;
 				return new MatchResult(true, left_,
-						plus(collected, list(match)));
+						Py.INSTANCE.plus(collected, list(match)));
 			}
 
 			// >>> same_name[0].value += increment
@@ -157,7 +186,13 @@ abstract class LeafPattern extends Pattern {
 			return new MatchResult(true, left_, collected);
 		}
 
-		return new MatchResult(true, left_, plus(collected, list(match)));
+		//        final List<T> c = new ArrayList<T>(a.size() + b.size());
+//
+//        c.addAll(a);
+//        c.addAll(b);
+//
+//        return c;
+		return new MatchResult(true, left_, Py.INSTANCE.plus(collected, list(match)));
 	}
 
 	protected abstract SingleMatchResult singleMatch(List<LeafPattern> left);

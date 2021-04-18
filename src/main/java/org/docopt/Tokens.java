@@ -1,6 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.bool;
 import static org.docopt.Python.list;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ final class Tokens extends ArrayList<String> {
 			$source = list();
 
 			for (final String s : Re.split("\\s+|(\\S*<.*?>)", source)) {
-				if (bool(s)) {
+				if (Py.INSTANCE.bool(s)) {
 					$source.add(s);
 				}
 			}

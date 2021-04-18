@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.bool;
-import static org.docopt.Python.in;
 import static org.docopt.Python.isUpper;
 import static org.docopt.Python.join;
 import static org.docopt.Python.list;
@@ -336,7 +334,8 @@ public final class Docopt {
 		final List<Pattern> result = list();
 
 		// >>> while tokens.current() not in [None, ']', ')', '|']
-		while (!in(tokens.current(), null, "]", ")", "|")) {
+
+		while (!Py.INSTANCE.in(tokens.current(), null, "]", ")", "|")) {
 			List<? extends Pattern> atom = parseAtom(tokens, options);
 
 			if ("...".equals(tokens.current())) {
@@ -587,7 +586,7 @@ public final class Docopt {
 			if (help) {
 				for (final LeafPattern o : options) {
 					if ("-h".equals(o.getName()) | "--help".equals(o.getName())) {
-						if (bool(o.getValue())) {
+						if (Py.INSTANCE.bool(o.getValue())) {
 							u = true;
 							break;
 						}
@@ -609,7 +608,7 @@ public final class Docopt {
 		{
 			u = false;
 
-			if (bool(version)) {
+			if (Py.INSTANCE.bool(version)) {
 				for (final LeafPattern o : options) {
 					if ("--version".equals(o.getName())) {
 						u = true;
