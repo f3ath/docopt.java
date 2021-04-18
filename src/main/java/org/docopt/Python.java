@@ -114,16 +114,8 @@ public final class Python {
         }
     }
 
-    public static <T> List<T> list(final Iterable<? extends T> elements) {
-        return Py.INSTANCE.list(elements);
-    }
-
     public static <T> List<T> list(final T[] elements) {
         return Py.INSTANCE.list(elements);
-    }
-
-    public static <T> List<T> list(final T element) {
-        return Py.INSTANCE.list(element);
     }
 
     public static <T> List<T> list() {

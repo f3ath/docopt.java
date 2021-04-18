@@ -58,7 +58,7 @@ abstract class Pattern {
 			// Can't use "groups = list(list(pattern))" since the argument is
 			// iterable.
 			groups = list();
-			groups.add(list(pattern));
+			groups.add(Py.INSTANCE.list(pattern));
 		}
 
 		while (!groups.isEmpty()) {
@@ -85,21 +85,21 @@ abstract class Pattern {
 				if (child.getClass() == Either.class) {
 					for (final Pattern c : child.getChildren()) {
 						// >>> groups.append([c] + children)
-						final List<Pattern> group = list(c);
+						final List<Pattern> group = Py.INSTANCE.list(c);
 						group.addAll(children);
 						groups.add(group);
 					}
 				}
 				else if (child.getClass() == OneOrMore.class) {
 					// >>> groups.append(child.children * 2 + children)
-					final List<Pattern> group = list(child.getChildren());
+					final List<Pattern> group = Py.INSTANCE.list(child.getChildren());
 					group.addAll(child.getChildren());
 					group.addAll(children);
 					groups.add(group);
 				}
 				else {
 					// >>> groups.append(child.children + children)
-					final List<Pattern> group = list(child.getChildren());
+					final List<Pattern> group = Py.INSTANCE.list(child.getChildren());
 					group.addAll(children);
 					groups.add(group);
 				}
@@ -137,7 +137,7 @@ abstract class Pattern {
 		}
 
 		if (uniq == null) {
-			uniq = list(set(flat()));
+			uniq = Py.INSTANCE.list(set(flat()));
 		}
 
 		final List<Pattern> children = ((BranchPattern) this).getChildren();
@@ -167,7 +167,7 @@ abstract class Pattern {
 			either = list();
 
 			for (final Pattern child : transform(this).getChildren()) {
-				either.add(list(((Required) child).getChildren()));
+				either.add(Py.INSTANCE.list(((Required) child).getChildren()));
 			}
 		}
 

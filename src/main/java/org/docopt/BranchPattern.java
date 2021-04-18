@@ -37,7 +37,7 @@ abstract class BranchPattern extends Pattern {
 	private final List<Pattern> children;
 
 	public BranchPattern(final List<? extends Pattern> children) {
-		this.children = list(children);
+		this.children = Py.INSTANCE.list(children);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ abstract class BranchPattern extends Pattern {
 	protected final List<Pattern> flat(final Class<?>... types) {
 
         if (Py.INSTANCE.in(getClass(), types)) {
-			return list((Pattern) this);
+			return Py.INSTANCE.list((Pattern) this);
 		}
 
 		// >>> return sum([child.flat(*types) for child in self.children], [])

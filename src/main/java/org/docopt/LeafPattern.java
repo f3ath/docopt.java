@@ -86,7 +86,7 @@ abstract class LeafPattern extends Pattern {
 		{
 
 			if (!Py.INSTANCE.bool(types) || Py.INSTANCE.in(getClass(), types)) {
-				return list((Pattern) this);
+				return Py.INSTANCE.list((Pattern) this);
 			}
 
 			return list();
@@ -148,7 +148,7 @@ abstract class LeafPattern extends Pattern {
 			}
 			else {
 				final Object v = match.getValue();
-				increment = (v instanceof String) ? list(v) : v;
+				increment = (v instanceof String) ? Py.INSTANCE.list(v) : v;
 			}
 
 			if (sameName.isEmpty()) {
@@ -160,7 +160,7 @@ abstract class LeafPattern extends Pattern {
 //
 //        return c;
 				return new MatchResult(true, left_,
-						Py.INSTANCE.plus(collected, list(match)));
+						Py.INSTANCE.plus(collected, Py.INSTANCE.list(match)));
 			}
 
 			// >>> same_name[0].value += increment
@@ -192,7 +192,7 @@ abstract class LeafPattern extends Pattern {
 //        c.addAll(b);
 //
 //        return c;
-		return new MatchResult(true, left_, Py.INSTANCE.plus(collected, list(match)));
+		return new MatchResult(true, left_, Py.INSTANCE.plus(collected, Py.INSTANCE.list(match)));
 	}
 
 	protected abstract SingleMatchResult singleMatch(List<LeafPattern> left);

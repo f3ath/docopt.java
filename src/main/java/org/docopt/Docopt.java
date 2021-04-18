@@ -194,7 +194,7 @@ public final class Docopt {
 			}
 		}
 
-		return list(o);
+		return Py.INSTANCE.list(o);
 	}
 
 	/**
@@ -311,17 +311,17 @@ public final class Docopt {
 			return seq;
 		}
 
-		final List<Pattern> result = (seq.size() > 1) ? list((Pattern) new Required(
+		final List<Pattern> result = (seq.size() > 1) ? Py.INSTANCE.list((Pattern) new Required(
 				seq))
 				: seq;
 
 		while ("|".equals(tokens.current())) {
 			tokens.move();
 			seq = parseSeq(tokens, options);
-			result.addAll((seq.size() > 1) ? list(new Required(seq)) : seq);
+			result.addAll((seq.size() > 1) ? Py.INSTANCE.list(new Required(seq)) : seq);
 		}
 
-		return (result.size() > 1) ? list(new Either(result)) : result;
+		return (result.size() > 1) ? Py.INSTANCE.list(new Either(result)) : result;
 	}
 
 	/**
@@ -339,7 +339,7 @@ public final class Docopt {
 			List<? extends Pattern> atom = parseAtom(tokens, options);
 
 			if ("...".equals(tokens.current())) {
-				atom = list(new OneOrMore(atom));
+				atom = Py.INSTANCE.list(new OneOrMore(atom));
 				tokens.move();
 			}
 
@@ -376,11 +376,11 @@ public final class Docopt {
 
 				if ("(".equals(token)) {
 					matching = ")";
-					result = list((Pattern) new Required(u));
+					result = Py.INSTANCE.list((Pattern) new Required(u));
 				}
 				else if ("[".equals(token)) {
 					matching = "]";
-					result = list((Pattern) new Optional(u));
+					result = Py.INSTANCE.list((Pattern) new Optional(u));
 				}
 				else {
 					throw new IllegalStateException();
@@ -391,12 +391,12 @@ public final class Docopt {
 				throw tokens.error("unmatched '%s'", token);
 			}
 
-			return list(result);
+			return Py.INSTANCE.list(result);
 		}
 
 		if ("options".equals(token)) {
 			tokens.move();
-			return list(new OptionsShortcut());
+			return Py.INSTANCE.list(new OptionsShortcut());
 		}
 
 		if (token.startsWith("--") && !"--".equals(token)) {
@@ -408,10 +408,10 @@ public final class Docopt {
 		}
 
 		if ((token.startsWith("<") && token.endsWith(">")) || isUpper(token)) {
-			return list(new Argument(tokens.move()));
+			return Py.INSTANCE.list(new Argument(tokens.move()));
 		}
 
-		return list(new Command(tokens.move()));
+		return Py.INSTANCE.list(new Command(tokens.move()));
 	}
 
 	/**
@@ -815,7 +815,7 @@ public final class Docopt {
 
 	private Map<String, Object> doParse(final List<String> argv) {
 		final List<LeafPattern> $argv = parseArgv(
-				Tokens.withExitException(argv), list(options), optionsFirst);
+				Tokens.withExitException(argv), Py.INSTANCE.list(options), optionsFirst);
 		final Set<Pattern> patternOptions = set(pattern.flat(Option.class));
 
 		for (final Pattern optionsShortcut : pattern
