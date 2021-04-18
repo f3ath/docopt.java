@@ -3,7 +3,6 @@ package org.docopt;
 import static org.docopt.Python.isUpper;
 import static org.docopt.Python.join;
 import static org.docopt.Python.partition;
-import static org.docopt.Python.set;
 import static org.docopt.Python.split;
 
 import java.io.InputStream;
@@ -815,7 +814,7 @@ public final class Docopt {
 	private Map<String, Object> doParse(final List<String> argv) {
 		final List<LeafPattern> $argv = parseArgv(
 				Tokens.withExitException(argv), Py.INSTANCE.list(options), optionsFirst);
-		final Set<Pattern> patternOptions = set(pattern.flat(Option.class));
+		final Set<Pattern> patternOptions = Py.INSTANCE.set(pattern.flat(Option.class));
 
 		for (final Pattern optionsShortcut : pattern
 				.flat(OptionsShortcut.class)) {
@@ -826,7 +825,7 @@ public final class Docopt {
 				final List<Pattern> u = ((BranchPattern) optionsShortcut)
 						.getChildren();
 				u.clear();
-				u.addAll(set(options));
+				u.addAll(Py.INSTANCE.set(options));
 				Pattern o = null;
 				for (final Iterator<Pattern> i = u.iterator(); i.hasNext();) {
 					o = i.next();

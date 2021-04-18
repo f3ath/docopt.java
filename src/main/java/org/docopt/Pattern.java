@@ -1,6 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.set;
 import static org.docopt.Python.split;
 
 import java.util.Arrays;
@@ -135,7 +134,7 @@ abstract class Pattern {
 		}
 
 		if (uniq == null) {
-			uniq = Py.INSTANCE.list(set(flat()));
+			uniq = Py.INSTANCE.list(Py.INSTANCE.set(flat()));
 		}
 
 		final List<Pattern> children = ((BranchPattern) this).getChildren();

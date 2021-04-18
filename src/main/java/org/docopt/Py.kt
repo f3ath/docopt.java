@@ -71,4 +71,6 @@ object Py {
         }
         return count
     }
+
+    fun <T> set(elements: Iterable<T>): Set<T> = elements.toMutableSet()
 }

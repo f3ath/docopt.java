@@ -113,16 +113,6 @@ public final class Python {
         }
     }
 
-    public static <T> Set<T> set(final Iterable<T> elements) {
-        final Set<T> set = new HashSet<T>();
-
-        for (final T element : elements) {
-            set.add(element);
-        }
-
-        return set;
-    }
-
     public static String join(final String self, final Iterable<?> iterable) {
         final Iterator<?> i = iterable.iterator();
 
