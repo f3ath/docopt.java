@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.list;
-
 import java.util.List;
 
 /**
@@ -89,7 +87,7 @@ abstract class LeafPattern extends Pattern {
 				return Py.INSTANCE.list((Pattern) this);
 			}
 
-			return list();
+			return Py.INSTANCE.list();
 		}
 	}
 
@@ -98,7 +96,7 @@ abstract class LeafPattern extends Pattern {
 			List<LeafPattern> collected) {
 		// >>> collected = [] if collected is None else collected
 		if (collected == null) {
-			collected = list();
+			collected = Py.INSTANCE.list();
 		}
 
 		Integer pos;
@@ -119,7 +117,7 @@ abstract class LeafPattern extends Pattern {
 
 		// >>> left_ = left[:pos] + left[pos + 1:]
 		{
-			left_ = list();
+			left_ = Py.INSTANCE.list();
 			left_.addAll(left.subList(0, pos));
 
 			if ((pos + 1) < left.size()) {
@@ -131,7 +129,7 @@ abstract class LeafPattern extends Pattern {
 
 		// >>> same_name = [a for a in collected if a.name == self.name]
 		{
-			sameName = list();
+			sameName = Py.INSTANCE.list();
 
 			for (final LeafPattern a : collected) {
 				if (name.equals(a.getName())) {

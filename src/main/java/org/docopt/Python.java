@@ -25,7 +25,7 @@ public final class Python {
                                            final String string) {
             final Matcher matcher = pattern.matcher(string);
 
-            final List<String> result = list();
+            final List<String> result = Py.INSTANCE.list();
 
             while (matcher.find()) {
                 if (matcher.groupCount() == 0) {
@@ -84,7 +84,7 @@ public final class Python {
 
             final Matcher matcher = Pattern.compile(pattern, 0).matcher(string);
 
-            final List<String> matches = list();
+            final List<String> matches = Py.INSTANCE.list();
 
             int start = 0;
 
@@ -111,22 +111,6 @@ public final class Python {
         private Re() {
             // Prevent instantiation.
         }
-    }
-
-    public static <T> List<T> list() {
-        return Py.INSTANCE.list();
-    }
-
-    public static <T> int count(final List<T> self, final T obj) {
-        int count = 0;
-
-        for (final T element : self) {
-            if (element.equals(obj)) {
-                count++;
-            }
-        }
-
-        return count;
     }
 
     public static <T> Set<T> set(final Iterable<T> elements) {

@@ -2,7 +2,6 @@ package org.docopt;
 
 import static org.docopt.Python.isUpper;
 import static org.docopt.Python.join;
-import static org.docopt.Python.list;
 import static org.docopt.Python.partition;
 import static org.docopt.Python.set;
 import static org.docopt.Python.split;
@@ -130,7 +129,7 @@ public final class Docopt {
 
 			// >>> o.long for o in similar
 			{
-				u = list();
+				u = Py.INSTANCE.list();
 				for (final Option o : similar) {
 					u.add(o.getLong());
 				}
@@ -331,7 +330,7 @@ public final class Docopt {
 	 */
 	private static List<Pattern> parseSeq(final Tokens tokens,
 			final List<Option> options) {
-		final List<Pattern> result = list();
+		final List<Pattern> result = Py.INSTANCE.list();
 
 		// >>> while tokens.current() not in [None, ']', ')', '|']
 
@@ -360,7 +359,7 @@ public final class Docopt {
 			final List<Option> options) {
 		final String token = tokens.current();
 
-		List<Pattern> result = list();
+		List<Pattern> result = Py.INSTANCE.list();
 
 		if ("(".equals(token) || "[".equals(token)) {
 			tokens.move();
@@ -432,7 +431,7 @@ public final class Docopt {
 	 */
 	private static List<LeafPattern> parseArgv(final Tokens tokens,
 			final List<Option> options, final boolean optionsFirst) {
-		final List<LeafPattern> parsed = list();
+		final List<LeafPattern> parsed = Py.INSTANCE.list();
 
 		while (tokens.current() != null) {
 			if ("--".equals(tokens.current())) {
@@ -473,7 +472,7 @@ public final class Docopt {
 	}
 
 	private static List<Option> parseDefaults(final String doc) {
-		final List<Option> defaults = list();
+		final List<Option> defaults = Py.INSTANCE.list();
 
 		for (String s : parseSection("options:", doc)) {
 			// >>> u, u, s = s.partition(':') # get rid of "options:"
@@ -492,7 +491,7 @@ public final class Docopt {
 
 			// >>> split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])];
 			{
-				final List<String> u = list();
+				final List<String> u = Py.INSTANCE.list();
 
 				for (int i = 1; i < split.size(); i += 2) {
 					u.add(split.get(i - 1) + split.get(i));

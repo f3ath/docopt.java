@@ -1,7 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.count;
-import static org.docopt.Python.list;
 import static org.docopt.Python.set;
 import static org.docopt.Python.split;
 
@@ -50,14 +48,14 @@ abstract class Pattern {
 	 * [-a] => (-a), (-a...) => (-a -a)
 	 */
 	private static Either transform(final Pattern pattern) {
-		final List<List<Pattern>> result = list();
+		final List<List<Pattern>> result = Py.INSTANCE.list();
 		List<List<Pattern>> groups;
 
 		// >>> groups = [[pattern]]
 		{
 			// Can't use "groups = list(list(pattern))" since the argument is
 			// iterable.
-			groups = list();
+			groups = Py.INSTANCE.list();
 			groups.add(Py.INSTANCE.list(pattern));
 		}
 
@@ -111,7 +109,7 @@ abstract class Pattern {
 
 		// >>> return Either(*[Required(*e) for e in result])
 		{
-			final List<Required> required = list();
+			final List<Required> required = Py.INSTANCE.list();
 
 			for (final List<Pattern> e : result) {
 				required.add(new Required(e));
@@ -164,7 +162,7 @@ abstract class Pattern {
 		// >>> either = [list(child.children) for child in
 		// transform(self).children]
 		{
-			either = list();
+			either = Py.INSTANCE.list();
 
 			for (final Pattern child : transform(this).getChildren()) {
 				either.add(Py.INSTANCE.list(((Required) child).getChildren()));
@@ -174,14 +172,14 @@ abstract class Pattern {
 		for (final List<Pattern> $case : either) {
 			// >>> for e in [child for child in case if case.count(child) > 1]
 			for (final Pattern child : $case) { // ^^^
-				if (count($case, child) > 1) { // ^^^
+				if (Py.INSTANCE.count($case, child) > 1) { // ^^^
 					final LeafPattern e = (LeafPattern) child; // ^^^
 
 					if ((e.getClass() == Argument.class)
 							|| ((e.getClass() == Option.class) && ((Option) e)
 									.getArgCount() != 0)) {
 						if (e.getValue() == null) {
-							e.setValue(list());
+							e.setValue(Py.INSTANCE.list());
 						}
 						else if (!(e.getValue() instanceof List)) {
 							e.setValue(split(e.getValue().toString()));

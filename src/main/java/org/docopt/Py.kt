@@ -61,4 +61,14 @@ object Py {
     fun <T> list(element: T): List<T> = mutableListOf(element)
 
     fun <T> list(): MutableList<T> = mutableListOf()
+
+    fun <T> count(self: List<T>, obj: T): Int {
+        var count = 0
+        for (element in self) {
+            if (element == obj) {
+                count++
+            }
+        }
+        return count
+    }
 }

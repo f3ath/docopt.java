@@ -9,7 +9,7 @@ internal class Either(children: List<Pattern?>?) : BranchPattern(children) {
     ): MatchResult {
         var collected: List<LeafPattern>? = collected
         if (collected == null) {
-            collected = Python.list()
+            collected = Py.list()
         }
         val outcomes = Py.list<MatchResult>()
         for (pattern in children) {

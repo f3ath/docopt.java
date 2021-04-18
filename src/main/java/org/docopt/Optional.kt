@@ -8,7 +8,7 @@ internal open class Optional(children: List<Pattern?>?) : BranchPattern(children
         var left: List<LeafPattern>? = left
         var collected: List<LeafPattern>? = collected
         if (collected == null) {
-            collected = Python.list()
+            collected = Py.list()
         }
         for (pattern in children) {
             val u = pattern.match(left, collected)

@@ -8,7 +8,7 @@ internal class OneOrMore(children: List<Pattern?>?) : BranchPattern(children) {
         var collected: List<LeafPattern>? = collected
         assert(children.size == 1)
         if (collected == null) {
-            collected = Python.list()
+            collected = Py.list()
         }
         var l = left
         var c = collected
