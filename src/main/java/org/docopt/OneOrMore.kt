@@ -5,11 +5,8 @@ internal class OneOrMore(children: List<Pattern?>?) : BranchPattern(children) {
         left: List<LeafPattern>,
         collected: List<LeafPattern>
     ): MatchResult {
-        var collected: List<LeafPattern>? = collected
+        var collected: List<LeafPattern> = collected ?: Py.list()
         assert(children.size == 1)
-        if (collected == null) {
-            collected = Py.list()
-        }
         var l = left
         var c = collected
         var l_: List<LeafPattern>? = null

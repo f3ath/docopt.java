@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.docopt.Pattern.MatchResult;
-
 // @formatter:off
 /**
  * Command-line interface parser that will make you smile.

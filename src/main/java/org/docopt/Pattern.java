@@ -5,33 +5,6 @@ import java.util.List;
 
 abstract class Pattern {
 
-	static class MatchResult {
-
-		private final boolean match;
-
-		private final List<LeafPattern> left;
-
-		private final List<LeafPattern> collected;
-
-		public MatchResult(final boolean match, final List<LeafPattern> left,
-				final List<LeafPattern> collected) {
-			this.match = match;
-			this.left = left;
-			this.collected = collected;
-		}
-
-		public boolean matched() {
-			return match;
-		}
-
-		public List<LeafPattern> getLeft() {
-			return left;
-		}
-
-		public List<LeafPattern> getCollected() {
-			return collected;
-		}
-	}
 
 	@SuppressWarnings("unchecked")
 	private static final List<Class<? extends BranchPattern>> PARENTS = Arrays
