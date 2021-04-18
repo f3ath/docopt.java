@@ -4,8 +4,6 @@ package org.docopt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.docopt.Python.Re;
-
 final class Tokens extends ArrayList<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -30,7 +28,7 @@ final class Tokens extends ArrayList<String> {
 	}
 
 	public static Tokens fromPattern(String source) {
-		source = Re.sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source);
+		source = Py.Re.INSTANCE.sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source);
 
 		List<String> $source;
 
@@ -38,7 +36,31 @@ final class Tokens extends ArrayList<String> {
 		{
 			$source = Py.INSTANCE.list();
 
-			for (final String s : Re.split("\\s+|(\\S*<.*?>)", source)) {
+			//
+//            if (!Py.Re.INSTANCE.hasGrouping(pattern)) {
+//                return Py.INSTANCE.list(string.split(pattern));
+//            }
+//
+//            final Matcher matcher = Pattern.compile(pattern, 0).matcher(string);
+//
+//            final List<String> matches = Py.INSTANCE.list();
+//
+//            int start = 0;
+//
+//            while (matcher.find()) {
+//                matches.add(string.substring(start, matcher.start()));
+//
+//                for (int i = 0; i < matcher.groupCount(); i++) {
+//                    matches.add(matcher.group(i + 1));
+//                }
+//
+//                start = matcher.end();
+//            }
+//
+//            matches.add(string.substring(start));
+//
+//            return matches;
+			for (final String s : Py.Re.INSTANCE.split("\\s+|(\\S*<.*?>)", source)) {
 				if (Py.INSTANCE.bool(s)) {
 					$source.add(s);
 				}

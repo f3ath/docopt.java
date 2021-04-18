@@ -12,7 +12,6 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.docopt.Pattern.MatchResult;
-import org.docopt.Python.Re;
 
 // @formatter:off
 /**
@@ -479,7 +478,31 @@ public final class Docopt {
 
 			// >>> split = re.split('\n *(-\S+?)', '\n' + s)[1:]
 			{
-				split = Re.split("\\n *(-\\S+?)", "\n" + s);
+				//
+//            if (!Py.Re.INSTANCE.hasGrouping(pattern)) {
+//                return Py.INSTANCE.list(string.split(pattern));
+//            }
+//
+//            final Matcher matcher = Pattern.compile(pattern, 0).matcher(string);
+//
+//            final List<String> matches = Py.INSTANCE.list();
+//
+//            int start = 0;
+//
+//            while (matcher.find()) {
+//                matches.add(string.substring(start, matcher.start()));
+//
+//                for (int i = 0; i < matcher.groupCount(); i++) {
+//                    matches.add(matcher.group(i + 1));
+//                }
+//
+//                start = matcher.end();
+//            }
+//
+//            matches.add(string.substring(start));
+//
+//            return matches;
+				split = Py.Re.INSTANCE.split("\\n *(-\\S+?)", "\n" + s);
 				split.remove(0);
 			}
 
