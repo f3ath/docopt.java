@@ -2,8 +2,10 @@ package org.docopt
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.docopt.Py.partition
 import java.io.IOException
 import java.net.URL
+import java.util.regex.Pattern
 
 object Helper {
     fun pureBaseName(url: URL): String {
@@ -48,5 +50,45 @@ object Helper {
         )
     }
 
-
+    fun getDefs(url: URL): List<TestDefinition> {
+        println("Generating test cases from $url")
+        var raw = Docopt.read(url.openStream(), "UTF-8")
+        raw = Pattern.compile("#.*$", Pattern.MULTILINE).matcher(raw)
+            .replaceAll("")
+        if (raw.startsWith("\"\"\"")) {
+            raw = raw.substring(3)
+        }
+        val defs: MutableList<TestDefinition> = ArrayList()
+        for (fixture in raw.split("r\"\"\"".toRegex()).toTypedArray()) {
+            if (fixture.isEmpty()) {
+                continue
+            }
+            val doc1: String
+            val body: String
+            run {
+                val u = partition(fixture, "\"\"\"")
+                doc1 = u[0]
+                body = u[2]
+            }
+            var first = true
+            for (_case in body.split("\\$".toRegex()).toTypedArray()) {
+                if (first) {
+                    first = false
+                    continue
+                }
+                val argv1: String
+                val expect: String
+                run {
+                    val u = partition(_case.trim { it <= ' ' }, "\n")
+                    argv1 = u[0]
+                    expect = u[2]
+                }
+                val argv = argv(argv1)
+                val expected = this.expect(expect)
+                val def = TestDefinition(doc1, argv, expected)
+                defs.add(def)
+            }
+        }
+        return defs
+    }
 }

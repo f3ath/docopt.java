@@ -666,10 +666,6 @@ public final class Docopt {
 		}
 	}
 
-	static String read(final InputStream stream) {
-		return read(stream, "UTF-8");
-	}
-
 	private final String doc;
 
 	private final String usage;
@@ -744,7 +740,7 @@ public final class Docopt {
 	 * @see Docopt
 	 */
 	public Docopt(final InputStream stream) {
-		this(read(stream));
+		this(read(stream, "UTF-8"));
 	}
 
 	/**
@@ -804,7 +800,7 @@ public final class Docopt {
 	 * @return this object
 	 */
 	public Docopt withVersion(final InputStream stream) {
-		this.version = read(stream);
+		this.version = read(stream, "UTF-8");
 		return this;
 	}
 
