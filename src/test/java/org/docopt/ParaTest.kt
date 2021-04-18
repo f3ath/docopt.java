@@ -13,10 +13,7 @@ class ParaTest {
         )
         dynamicTest(message) {
             val actual: Any = try {
-                Docopt(it.doc)
-                    .withStdOut(null)
-                    .withStdErr(null)
-                    .withExit(false)
+                Docopt(it.doc, out = null, err = null, exit = false)
                     .parse(it.argv)
             } catch (e: DocoptExitException) {
                 "\"user-error\""
