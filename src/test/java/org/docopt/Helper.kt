@@ -52,7 +52,7 @@ object Helper {
 
     fun getDefs(url: URL): List<TestDefinition> {
         println("Generating test cases from $url")
-        var raw = Docopt.read(url.openStream(), "UTF-8")
+        var raw = DocoptStatic.read(url.openStream())
         raw = Pattern.compile("#.*$", Pattern.MULTILINE).matcher(raw)
             .replaceAll("")
         if (raw.startsWith("\"\"\"")) {

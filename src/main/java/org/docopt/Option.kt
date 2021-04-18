@@ -3,11 +3,8 @@ package org.docopt
 internal class Option @JvmOverloads constructor(
     `$short`: String?, `$long`: String?, argCount: Int = 0,
     value: Any? = false
-) : LeafPattern( // >>> @property
-    // >>> def name(self):
-    // >>> return self.long or self.short
+) : LeafPattern(
     `$long` ?: `$short`,  // >>> self.value = None if value is False and argcount else
-    // value
     if (java.lang.Boolean.FALSE == value && argCount != 0) null else value
 ) {
     val short: String?
@@ -77,12 +74,12 @@ internal class Option @JvmOverloads constructor(
             var options: String
             var description: String
             run {
-                val a = Py.partition(optionDescription.trim { it <= ' ' }!!, "  "!!)
+                val a = Py.partition(optionDescription.trim { it <= ' ' }, "  ")
                 options = a[0]
                 description = a[2]
             }
             options = options.replace(",".toRegex(), " ").replace("=".toRegex(), " ")
-            for (s in Py.split(options!!)) {
+            for (s in Py.split(options)) {
                 if (s.startsWith("--")) {
                     long = s
                 } else if (s.startsWith("-")) {
@@ -93,7 +90,7 @@ internal class Option @JvmOverloads constructor(
             }
             if (argCount != 0) {
                 val matched = Py.Re.findAll(
-                    "\\[default: (.*)\\]"!!, description!!, Py.Re.IGNORECASE
+                    "\\[default: (.*)\\]", description, Py.Re.IGNORECASE
                 )
                 value = if (Py.bool(matched)) matched[0] else null
             }
@@ -101,7 +98,6 @@ internal class Option @JvmOverloads constructor(
         }
     }
 
-    // >>> def __init__(self, short=None, long=None, argcount=0, value=False)
     init {
         assert(argCount == 0 || argCount == 1)
         short = `$short`
