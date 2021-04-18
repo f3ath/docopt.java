@@ -280,7 +280,21 @@ public final class Docopt {
 
 	private static Required parsePattern(final String source,
 			final List<Option> options) {
-		final Tokens tokens = Tokens.fromPattern(source);
+		String source1 = source;
+		source1 = Py.Re.INSTANCE.sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source1);
+		List<String> $source;
+		{
+			$source = Py.INSTANCE.list();
+
+
+			for (final String s : Py.Re.INSTANCE.split("\\s+|(\\S*<.*?>)", source1)) {
+				if (Py.INSTANCE.bool(s)) {
+					$source.add(s);
+				}
+			}
+		}
+
+		final Tokens tokens = new Tokens($source, DocoptLanguageError.class);
 		final List<? extends Pattern> result = parseExpr(tokens, options);
 
 		if (tokens.current() != null) {
@@ -830,7 +844,7 @@ public final class Docopt {
 
 	private Map<String, Object> doParse(final List<String> argv) {
 		final List<LeafPattern> $argv = parseArgv(
-				Tokens.withExitException(argv), Py.INSTANCE.list(options), optionsFirst);
+				new Tokens(argv, DocoptExitException.class), Py.INSTANCE.list(options), optionsFirst);
 		final Set<Pattern> patternOptions = Py.INSTANCE.set(pattern.flat(Option.class));
 
 		for (final Pattern optionsShortcut : pattern
