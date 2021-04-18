@@ -8,38 +8,6 @@ public final class Python {
 
     static final class Re {
 
-        public static final int IGNORECASE = Pattern.CASE_INSENSITIVE;
-
-        public static final int MULTILINE = Pattern.MULTILINE
-                | Pattern.UNIX_LINES;
-
-        public static List<String> findAll(final String pattern,
-                                           final String string, final int flags) {
-            return findAll(Pattern.compile(pattern, flags), string);
-        }
-
-        public static List<String> findAll(final Pattern pattern,
-                                           final String string) {
-            final Matcher matcher = pattern.matcher(string);
-
-            final List<String> result = Py.INSTANCE.list();
-
-            while (matcher.find()) {
-                if (matcher.groupCount() == 0) {
-                    result.add(matcher.group());
-                } else {
-                    for (int i = 0; i < matcher.groupCount(); i++) {
-                        final String match = matcher.group(i + 1);
-
-                        if (match != null) {
-                            result.add(match);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
 
         /**
          * Determines if {@code pattern} contains at least one capturing group.

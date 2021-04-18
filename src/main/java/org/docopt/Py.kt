@@ -5,8 +5,42 @@ import java.math.BigInteger
 import java.util.Arrays
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.regex.Pattern
 
 object Py {
+    object Re {
+        const val IGNORECASE = Pattern.CASE_INSENSITIVE
+        const val MULTILINE = (Pattern.MULTILINE or Pattern.UNIX_LINES)
+
+        fun findAll(
+            pattern: String,
+            string: String, flags: Int
+        ): List<String?> {
+            return findAll(Pattern.compile(pattern, flags), string)
+        }
+
+        fun findAll(
+            pattern: Pattern,
+            string: String
+        ): List<String?> {
+            val matcher = pattern.matcher(string)
+            val result = list<String?>()
+            while (matcher.find()) {
+                if (matcher.groupCount() == 0) {
+                    result.add(matcher.group())
+                } else {
+                    for (i in 0 until matcher.groupCount()) {
+                        val match = matcher.group(i + 1)
+                        if (match != null) {
+                            result.add(match)
+                        }
+                    }
+                }
+            }
+            return result
+        }
+    }
+
     fun bool(o: Any?): Boolean = when (o) {
         null -> false
         is Boolean -> o

@@ -1,7 +1,5 @@
 package org.docopt
 
-import org.docopt.Python.Re
-
 internal class Option @JvmOverloads constructor(
     `$short`: String?, `$long`: String?, argCount: Int = 0,
     value: Any? = false
@@ -94,9 +92,8 @@ internal class Option @JvmOverloads constructor(
                 }
             }
             if (argCount != 0) {
-                val matched = Re.findAll(
-                    "\\[default: (.*)\\]",
-                    description, Re.IGNORECASE
+                val matched = Py.Re.findAll(
+                    "\\[default: (.*)\\]"!!, description!!, Py.Re.IGNORECASE
                 )
                 value = if (Py.bool(matched)) matched[0] else null
             }

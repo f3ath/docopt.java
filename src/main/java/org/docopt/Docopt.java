@@ -514,9 +514,8 @@ public final class Docopt {
 			final String source) {
 		// >>> return [s.strip() for s in pattern.findall(source)]
 		{
-			final List<String> u = Re.findAll("^([^\\n]*" + name +
-					"[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)", source,
-					Re.IGNORECASE | Re.MULTILINE);
+			final List<String> u = Py.Re.INSTANCE.findAll("^([^\\n]*" + name +
+					"[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)", source, Py.Re.IGNORECASE | Py.Re.MULTILINE);
 
 			for (int i = 0; i < u.size(); i++) {
 				u.set(i, u.get(i).trim());
