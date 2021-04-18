@@ -1,7 +1,6 @@
 package org.docopt;
 
 import static org.docopt.Python.join;
-import static org.docopt.Python.list;
 
 import java.util.List;
 
@@ -55,7 +54,7 @@ abstract class BranchPattern extends Pattern {
 
 		// >>> return sum([child.flat(*types) for child in self.children], [])
 		{
-			final List<Pattern> result = list();
+			final List<Pattern> result = Py.INSTANCE.list();
 
 			for (final Pattern child : children) {
 				result.addAll(child.flat(types));

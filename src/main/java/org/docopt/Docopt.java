@@ -103,7 +103,7 @@ public final class Docopt {
 
 		// >>> similar = [o for o in options if o.long == long]
 		{
-			similar = list();
+			similar = Py.INSTANCE.list();
 
 			for (final Option o : options) {
 				if ($long.equals(o.getLong())) {
@@ -208,7 +208,7 @@ public final class Docopt {
 		assert token.startsWith("-") && !token.startsWith("--");
 		String left = token.replaceFirst("^-+", "");
 
-		final List<Option> parsed = list();
+		final List<Option> parsed = Py.INSTANCE.list();
 
 		while (!"".equals(left)) {
 			final String $short = "-" + left.charAt(0);
@@ -219,7 +219,7 @@ public final class Docopt {
 
 			// >>> similar = [o for o in options if o.short == short]
 			{
-				similar = list();
+				similar = Py.INSTANCE.list();
 
 				for (final Option o : options) {
 					if ($short.equals(o.getShort())) {

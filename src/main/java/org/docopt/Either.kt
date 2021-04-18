@@ -11,7 +11,7 @@ internal class Either(children: List<Pattern?>?) : BranchPattern(children) {
         if (collected == null) {
             collected = Python.list()
         }
-        val outcomes = Python.list<MatchResult>()
+        val outcomes = Py.list<MatchResult>()
         for (pattern in children) {
             val m = pattern.match(left, collected)
             if (m.matched()) {
