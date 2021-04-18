@@ -89,4 +89,18 @@ object Py {
             if (j < self.length) self.substring(j) else ""
         )
     }
+
+    fun isUpper(self: String): Boolean {
+        var result = false
+        for (c in self.toCharArray()) {
+            if (Character.isLetter(c)) {
+                result = if (Character.isUpperCase(c)) {
+                    true
+                } else {
+                    return false
+                }
+            }
+        }
+        return result
+    }
 }

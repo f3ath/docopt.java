@@ -1,6 +1,5 @@
 package org.docopt;
 
-import static org.docopt.Python.isUpper;
 import static org.docopt.Python.split;
 
 import java.io.InputStream;
@@ -403,7 +402,7 @@ public final class Docopt {
 			return parseShorts(tokens, options);
 		}
 
-		if ((token.startsWith("<") && token.endsWith(">")) || isUpper(token)) {
+		if ((token.startsWith("<") && token.endsWith(">")) || Py.INSTANCE.isUpper(token)) {
 			return Py.INSTANCE.list(new Argument(tokens.move()));
 		}
 

@@ -1,9 +1,6 @@
 package org.docopt;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -111,22 +108,6 @@ public final class Python {
         private Re() {
             // Prevent instantiation.
         }
-    }
-
-    public static boolean isUpper(final String self) {
-        boolean result = false;
-
-        for (final char c : self.toCharArray()) {
-            if (Character.isLetter(c)) {
-                if (Character.isUpperCase(c)) {
-                    result = true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        return result;
     }
 
     public static List<String> split(final String self) {
