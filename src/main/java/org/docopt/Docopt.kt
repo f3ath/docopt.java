@@ -3,7 +3,6 @@ package org.docopt
 import org.docopt.Py.list
 import org.docopt.Py.set
 import java.io.PrintStream
-import java.util.Arrays
 import kotlin.system.exitProcess
 
 class Docopt(
@@ -20,7 +19,7 @@ class Docopt(
     private val optionsFirst = false
 
     private fun doParse(argv: List<String>): Map<String?, Any?> {
-        val argv = DocoptStatic.parseArgv(
+        val argv = Parser.parseArgv(
             Tokens(argv, DocoptExitException::class.java), list(options), optionsFirst
         )
         val patternOptions = set(
@@ -48,7 +47,7 @@ class Docopt(
                 }
             }
         }
-        DocoptStatic.extras(help, version, argv, doc)
+        Parser.extras(help, version, argv, doc)
         val m = pattern.fix().match(argv)
         if (m.matched() && m.left.isEmpty()) {
             val u: MutableMap<String?, Any?> = HashMap()
@@ -92,7 +91,7 @@ class Docopt(
     }
 
     init {
-        val usageSections = DocoptStatic.parseSection("usage:", doc)
+        val usageSections = Parser.parseSection("usage:", doc)
         if (usageSections.size == 0) {
             throw DocoptLanguageError(
                 "\"usage:\" (case-insensitive) not found."
@@ -104,7 +103,7 @@ class Docopt(
             )
         }
         usage = usageSections[0]
-        options = DocoptStatic.parseDefaults(doc)
-        pattern = DocoptStatic.parsePattern(DocoptStatic.formalUsage(usage), options)
+        options = Parser.parseDefaults(doc)
+        pattern = Parser.parsePattern(Parser.formalUsage(usage), options)
     }
 }

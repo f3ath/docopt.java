@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 
-public class DocoptStatic {
+public class Parser {
 
     static Required parsePattern(final String source,
                                  final List<Option> options) {
