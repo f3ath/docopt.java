@@ -7,62 +7,60 @@ import java.util.List;
  */
 abstract class BranchPattern extends Pattern {
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((children == null) ? 0 : children.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((children == null) ? 0 : children.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final BranchPattern other = (BranchPattern) obj;
-		if (children == null) {
-			return other.children == null;
-		}
-		else return children.equals(other.children);
-	}
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BranchPattern other = (BranchPattern) obj;
+        if (children == null) {
+            return other.children == null;
+        } else return children.equals(other.children);
+    }
 
-	private final List<Pattern> children;
+    private final List<Pattern> children;
 
-	public BranchPattern(final List<? extends Pattern> children) {
-		this.children = Py.INSTANCE.list(children);
-	}
+    public BranchPattern(final List<? extends Pattern> children) {
+        this.children = Py.INSTANCE.list(children);
+    }
 
-	@Override
-	public String toString() {
-		return String.format("%s(%s)", getClass().getSimpleName(),
-				children.isEmpty() ? "" : Py.INSTANCE.join(", ", children));
-	}
+    @Override
+    public String toString() {
+        return String.format("%s(%s)", getClass().getSimpleName(),
+                children.isEmpty() ? "" : Py.INSTANCE.join(", ", children));
+    }
 
-	@Override
-	protected final List<Pattern> flat(final Class<?>... types) {
+    @Override
+    protected final List<Pattern> flat(final Class<?>... types) {
 
         if (Py.INSTANCE.in(getClass(), types)) {
-			return Py.INSTANCE.list((Pattern) this);
-		}
+            return Py.INSTANCE.list((Pattern) this);
+        }
 
-		// >>> return sum([child.flat(*types) for child in self.children], [])
-		{
-			final List<Pattern> result = Py.INSTANCE.list();
+        {
+            final List<Pattern> result = Py.INSTANCE.list();
 
-			for (final Pattern child : children) {
-				result.addAll(child.flat(types));
-			}
+            for (final Pattern child : children) {
+                result.addAll(child.flat(types));
+            }
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public List<Pattern> getChildren() {
-		return children;
-	}
+    public List<Pattern> getChildren() {
+        return children;
+    }
 }

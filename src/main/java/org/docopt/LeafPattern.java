@@ -185,9 +185,6 @@ abstract class LeafPattern extends Pattern {
         }
         if (value == null) {
             return other.value == null;
-        } else if (!value.equals(other.value)) {
-            return false;
-        }
-        return true;
+        } else return value.equals(other.value);
     }
 }
