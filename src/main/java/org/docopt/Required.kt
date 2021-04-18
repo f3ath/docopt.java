@@ -7,18 +7,15 @@ internal class Required(children: List<Pattern?>?) : BranchPattern(children) {
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
     ): MatchResult {
-        var collected: List<LeafPattern>? = collected
-        if (collected == null) {
-            collected = list()
-        }
+        val coll = collected ?: list()
         var l = left
-        var c = collected
+        var c = coll
         for (pattern in children) {
             val m = pattern.match(l, c)
             l = m.left
             c = m.collected
             if (!m.matched()) {
-                return MatchResult(false, left, collected)
+                return MatchResult(false, left, coll)
             }
         }
         return MatchResult(true, l, c)
