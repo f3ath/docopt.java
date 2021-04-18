@@ -7,32 +7,6 @@ import java.util.List;
  */
 abstract class LeafPattern extends Pattern {
 
-    static class SingleMatchResult {
-
-        private final Integer position;
-
-        private final LeafPattern match;
-
-        public SingleMatchResult(final Integer position, final LeafPattern match) {
-            this.position = position;
-            this.match = match;
-        }
-
-        public Integer getPosition() {
-            return position;
-        }
-
-        public LeafPattern getMatch() {
-            return match;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s(%d, %s)", getClass().getSimpleName(),
-                    position, match);
-        }
-    }
-
     private final String name;
 
     private Object value;
