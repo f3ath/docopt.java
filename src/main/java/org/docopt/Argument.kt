@@ -5,18 +5,16 @@ internal open class Argument : LeafPattern {
     constructor(name: String?) : super(name)
 
     override fun singleMatch(left: List<LeafPattern>): SingleMatchResult {
-        // >>> for n, pattern in enumerate(left)
-        for (n in left.indices) {
-            val pattern = left[n]
-            if (pattern.javaClass == Argument::class.java) {
-                return SingleMatchResult(
-                    n, Argument(
-                        name,
-                        pattern.value
-                    )
+
+        return  left
+            .withIndex()
+            .firstOrNull { (_, pattern) -> pattern is Argument }
+            ?.let { (n, pattern) ->
+                SingleMatchResult(
+                    position = n,
+                    match = Argument(name, pattern.value)
                 )
-            }
-        }
-        return SingleMatchResult(null, null)
+            } ?: SingleMatchResult()
+
     }
 }

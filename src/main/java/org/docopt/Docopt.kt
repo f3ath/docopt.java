@@ -60,7 +60,7 @@ class Docopt(
             }
             return u
         }
-        throw DocoptExitException(1, null, true)
+        throw DocoptExitException(exitCode = 1, printUsage = true)
     }
 
     @Throws(DocoptExitException::class)

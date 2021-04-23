@@ -12,6 +12,6 @@ internal class Command @JvmOverloads constructor(name: String?, value: Any? = fa
                 break
             }
         }
-        return SingleMatchResult(null, null)
+        return SingleMatchResult()
     }
 }

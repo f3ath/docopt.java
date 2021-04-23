@@ -17,7 +17,7 @@ internal class Option @JvmOverloads constructor(
                 return SingleMatchResult(n, pattern)
             }
         }
-        return SingleMatchResult(null, null)
+        return SingleMatchResult()
     }
 
     override fun hashCode(): Int {
