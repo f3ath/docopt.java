@@ -1,7 +1,6 @@
 package org.docopt
 
 import org.docopt.Py.list
-import org.docopt.Py.set
 import java.io.PrintStream
 import kotlin.system.exitProcess
 
@@ -22,18 +21,18 @@ class Docopt(
         val argv = Parser.parseArgv(
             Tokens(argv, DocoptExitException::class.java), list(options), optionsFirst
         )
-        val patternOptions = set(
-            pattern.flat(
+        val patternOptions = pattern
+            .flat(
                 Option::class.java
             )
-        )
+            .toMutableSet()
+
         for (optionsShortcut in pattern
             .flat(OptionsShortcut::class.java)) {
             run {
-                val u = (optionsShortcut as BranchPattern)
-                    .children
+                val u = (optionsShortcut as BranchPattern).children
                 u.clear()
-                u.addAll(set(options))
+                u.addAll(options)
                 var o: Pattern?
                 val i = u.iterator()
                 while (i.hasNext()) {

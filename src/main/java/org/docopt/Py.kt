@@ -174,7 +174,6 @@ object Py {
             return arrayOf(self, "", "")
         }
 
-        // Always <= s.length
         val j = i + sep.length
         return arrayOf(
             self.substring(0, i), sep,
