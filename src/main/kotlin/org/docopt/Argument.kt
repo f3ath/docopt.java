@@ -1,8 +1,6 @@
 package org.docopt
 
-internal open class Argument : LeafPattern {
-    constructor(name: String?, value: Any?) : super(name, value)
-    constructor(name: String?) : super(name)
+internal open class Argument(name: String?, value: Any? = null) : LeafPattern(name, value) {
 
     override fun singleMatch(left: List<LeafPattern>): SingleMatchResult = left
         .withIndex()

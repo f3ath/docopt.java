@@ -120,21 +120,6 @@ internal object Py {
         else -> true
     }
 
-    fun <T> `in`(left: T?, vararg right: T): Boolean {
-        for (o in right) {
-            if (left != null) {
-                if (left == o) {
-                    return true
-                }
-            } else {
-                if (o == null) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
     fun repr(o: Any?): String = when (o) {
         null -> "null"
         is String -> "\"$o\""

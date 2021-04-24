@@ -5,7 +5,6 @@ import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
 import org.docopt.Py.Re.split
 import org.docopt.Py.Re.sub
-import org.docopt.Py.`in`
 import org.docopt.Py.bool
 import org.docopt.Py.isUpper
 import org.docopt.Py.partition
@@ -217,7 +216,7 @@ internal object Parser {
         options: MutableList<Option>
     ): MutableList<Pattern?> {
         val result = mutableListOf<Pattern?>()
-        while (!`in`(tokens.current(), null, "]", ")", "|")) {
+        while (!arrayOf(null, "]", ")", "|").contains(tokens.current())) {
             var atom = parseAtom(tokens, options)
             if ("..." == tokens.current()) {
                 atom = mutableListOf(OneOrMore(atom))

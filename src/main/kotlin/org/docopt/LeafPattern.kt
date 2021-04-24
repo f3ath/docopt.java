@@ -1,6 +1,5 @@
 package org.docopt
 
-import org.docopt.Py.`in`
 import org.docopt.Py.bool
 import org.docopt.Py.repr
 
@@ -20,7 +19,7 @@ internal abstract class LeafPattern constructor(
 
     override fun flat(vararg types: Class<*>): List<Pattern> {
         run {
-            return if (!bool(types) || `in`(javaClass, *types)) {
+            return if (!bool(types) || types.contains(javaClass)) {
                 mutableListOf(this as Pattern)
             } else mutableListOf()
         }
