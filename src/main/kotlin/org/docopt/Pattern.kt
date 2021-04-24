@@ -1,7 +1,6 @@
 package org.docopt
 
 import org.docopt.Py.count
-import org.docopt.Py.set
 import org.docopt.Py.split
 
 internal abstract class Pattern {
@@ -20,7 +19,7 @@ internal abstract class Pattern {
             return
         }
         if (u == null) {
-            u = set(flat()).toMutableList()
+            u = flat().toMutableList()
         }
         for (i in children.indices) {
             val child = children[i]

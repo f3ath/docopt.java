@@ -135,8 +135,6 @@ internal object Py {
         return false
     }
 
-    fun <T> plus(a: List<T>, b: List<T>): List<T> = a + b
-
     fun repr(o: Any?): String = when (o) {
         null -> "null"
         is String -> "\"$o\""
@@ -153,10 +151,6 @@ internal object Py {
         }
         return count
     }
-
-    fun <T> set(elements: Iterable<T>): Set<T> = elements.toMutableSet()
-
-    fun join(self: String, iterable: Iterable<*>): String = iterable.joinToString(self)
 
     fun partition(self: String, sep: String): Array<String> {
         val i = self.indexOf(sep)

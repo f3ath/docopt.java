@@ -2,7 +2,6 @@ package org.docopt
 
 import org.docopt.Py.`in`
 import org.docopt.Py.bool
-import org.docopt.Py.plus
 import org.docopt.Py.repr
 
 /**
@@ -71,7 +70,7 @@ internal abstract class LeafPattern constructor(
                 match!!.value = increment
                 return MatchResult(
                     true, left_,
-                    plus(col, mutableListOf(match!!))
+                    col + mutableListOf(match!!)
                 )
             }
             run {
@@ -91,11 +90,7 @@ internal abstract class LeafPattern constructor(
             return MatchResult(true, left_, col)
         }
         return MatchResult(
-            true, left_, plus(
-                col, mutableListOf(
-                    match!!
-                )
-            )
+            true, left_, col + mutableListOf(match!!)
         )
     }
 
