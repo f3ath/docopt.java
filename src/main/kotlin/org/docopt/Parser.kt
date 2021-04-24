@@ -8,7 +8,6 @@ import org.docopt.Py.Re.sub
 import org.docopt.Py.`in`
 import org.docopt.Py.bool
 import org.docopt.Py.isUpper
-import org.docopt.Py.join
 import org.docopt.Py.partition
 import org.docopt.Py.split
 import java.io.InputStream
@@ -63,7 +62,7 @@ internal object Parser {
         val tokens = Tokens(sour2, DocoptLanguageError::class.java)
         val result = parseExpr(tokens, options)
         if (tokens.current() != null) {
-            throw tokens.error("unexpected ending: %s", join(" ", tokens))
+            throw tokens.error("unexpected ending: %s", tokens.joinToString(" "))
         }
         return Required(result)
     }
@@ -294,7 +293,7 @@ internal object Parser {
         if (similar.size > 1) {
             throw tokens.error(
                 "%s is not a unique prefix: %s?", long,
-                join(", ", similar.map { it.long })
+                similar.map { it.long }.joinToString(", ")
             )
         }
         var o: Option

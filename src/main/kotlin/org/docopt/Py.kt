@@ -76,7 +76,7 @@ internal object Py {
             string: String
         ): List<String?> {
             if (!hasGrouping(pattern)) {
-                return list(string.split(pattern.toRegex()).toTypedArray())
+                return string.split(pattern.toRegex()).toTypedArray().toMutableList()
             }
             val matcher = Pattern.compile(pattern, 0).matcher(string)
             val matches = mutableListOf<String?>()
@@ -95,8 +95,6 @@ internal object Py {
 
         fun sub(pattern: String, repl: String, string: String): String =
             Pattern.compile(pattern, 0).matcher(string).replaceAll(repl)
-
-
     }
 
     fun bool(o: Any?): Boolean = when (o) {
@@ -146,12 +144,6 @@ internal object Py {
         else -> o.toString()
     }
 
-    fun <T> list(elements: Iterable<T>): MutableList<T> = elements.toMutableList()
-
-    fun <T> list(elements: Array<T>): MutableList<T> = elements.toMutableList()
-
-    fun <T> list(element: T): MutableList<T> = mutableListOf(element)
-
     fun <T> count(self: List<T>, obj: T): Int {
         var count = 0
         for (element in self) {
@@ -194,5 +186,5 @@ internal object Py {
     }
 
     fun split(self: String): MutableList<String> =
-        list(self.trim { it <= ' ' }.split("\\s+".toRegex()))
+        self.trim().split("\\s+".toRegex()).toMutableList()
 }

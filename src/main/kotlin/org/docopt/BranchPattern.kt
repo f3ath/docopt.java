@@ -1,7 +1,6 @@
 package org.docopt
 
 import org.docopt.Py.`in`
-import org.docopt.Py.join
 
 /**
  * Branch/inner node of a pattern tree.
@@ -16,7 +15,7 @@ internal abstract class BranchPattern(children: Collection<Pattern?>) : Pattern(
 
     override fun toString(): String = String.format(
         "%s(%s)", javaClass.simpleName,
-        if (children.isEmpty()) "" else join(", ", children)
+        if (children.isEmpty()) "" else children.joinToString<Any?>(", ")
     )
 
     override fun flat(vararg types: Class<*>): List<Pattern> {
