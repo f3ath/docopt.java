@@ -2,7 +2,6 @@ package org.docopt
 
 import org.docopt.Py.`in`
 import org.docopt.Py.bool
-import org.docopt.Py.list
 import org.docopt.Py.plus
 import org.docopt.Py.repr
 
@@ -23,8 +22,8 @@ internal abstract class LeafPattern constructor(
     override fun flat(vararg types: Class<*>): List<Pattern> {
         run {
             return if (!bool(types) || `in`(javaClass, *types)) {
-                list(this as Pattern)
-            } else list()
+                mutableListOf(this as Pattern)
+            } else mutableListOf()
         }
     }
 
@@ -45,7 +44,7 @@ internal abstract class LeafPattern constructor(
         }
         var left_: MutableList<LeafPattern>
         run {
-            left_ = list()
+            left_ = mutableListOf()
             left_.addAll(left.subList(0, pos!!))
             if (pos!! + 1 < left.size) {
                 left_.addAll(left.subList(pos!! + 1, left.size))
@@ -53,7 +52,7 @@ internal abstract class LeafPattern constructor(
         }
         var sameName: MutableList<LeafPattern>
         run {
-            sameName = list()
+            sameName = mutableListOf()
             for (a in col) {
                 if (name == a.name) {
                     sameName.add(a)
@@ -66,13 +65,13 @@ internal abstract class LeafPattern constructor(
                 1
             } else {
                 val v = match!!.value
-                (if (v is String) list<Any>(v) else v)!!
+                (if (v is String) mutableListOf(v) else v)!!
             }
             if (sameName.isEmpty()) {
                 match!!.value = increment
                 return MatchResult(
                     true, left_,
-                    plus(col, list(match!!))
+                    plus(col, mutableListOf(match!!))
                 )
             }
             run {
@@ -93,7 +92,7 @@ internal abstract class LeafPattern constructor(
         }
         return MatchResult(
             true, left_, plus(
-                col, list(
+                col, mutableListOf(
                     match!!
                 )
             )

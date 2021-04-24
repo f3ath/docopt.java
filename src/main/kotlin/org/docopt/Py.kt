@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.regex.Pattern
 
-object Py {
+internal object Py {
     object Re {
         const val IGNORECASE = Pattern.CASE_INSENSITIVE
         const val MULTILINE = (Pattern.MULTILINE or Pattern.UNIX_LINES)
@@ -43,7 +43,7 @@ object Py {
         /**
          * Determines if [pattern] contains at least one capturing group.
          */
-        fun hasGrouping(pattern: String): Boolean {
+        private fun hasGrouping(pattern: String): Boolean {
 
             var i = -1
 
@@ -79,7 +79,7 @@ object Py {
                 return list(string.split(pattern.toRegex()).toTypedArray())
             }
             val matcher = Pattern.compile(pattern, 0).matcher(string)
-            val matches = list<String?>()
+            val matches = mutableListOf<String?>()
             var start = 0
             while (matcher.find()) {
                 matches.add(string.substring(start, matcher.start()))
@@ -151,8 +151,6 @@ object Py {
     fun <T> list(elements: Array<T>): MutableList<T> = elements.toMutableList()
 
     fun <T> list(element: T): MutableList<T> = mutableListOf(element)
-
-    fun <T> list(): MutableList<T> = mutableListOf()
 
     fun <T> count(self: List<T>, obj: T): Int {
         var count = 0

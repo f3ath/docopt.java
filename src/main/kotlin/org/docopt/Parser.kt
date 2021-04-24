@@ -9,7 +9,6 @@ import org.docopt.Py.`in`
 import org.docopt.Py.bool
 import org.docopt.Py.isUpper
 import org.docopt.Py.join
-import org.docopt.Py.list
 import org.docopt.Py.partition
 import org.docopt.Py.split
 import java.io.InputStream
@@ -18,7 +17,7 @@ import java.util.Scanner
 internal object Parser {
 
     fun parseDefaults(doc: String?): MutableList<Option> {
-        val defaults = list<Option>()
+        val defaults = mutableListOf<Option>()
         for (s in parseSection("options:", doc)) {
             var s = partition(s, ":")[2]
             var split: List<String?>
@@ -27,7 +26,7 @@ internal object Parser {
             split = split(pattern, s1).toMutableList()
             split.removeAt(0)
             run {
-                val u = list<String?>()
+                val u = mutableListOf<String?>()
                 var i = 1
                 while (i < split.size) {
                     u.add(split[i - 1] + split[i])
@@ -54,7 +53,7 @@ internal object Parser {
         source1 = sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source1!!)
         var sour2: MutableList<String>
         run {
-            sour2 = list()
+            sour2 = mutableListOf()
             for (s in split("\\s+|(\\S*<.*?>)", source1)) {
                 if (s != null && s != "") {
                     sour2.add(s)
@@ -73,7 +72,7 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>, optionsFirst: Boolean
     ): List<LeafPattern> {
-        val parsed = list<LeafPattern>()
+        val parsed = mutableListOf<LeafPattern>()
         while (tokens.current() != null) {
             if ("--" == tokens.current()) {
                 run {
@@ -124,7 +123,7 @@ internal object Parser {
                 Re.IGNORECASE or Re.MULTILINE
             )
             for (i in u.indices) {
-                u.set(i, u[i]!!.trim { it <= ' ' })
+                u[i] = u[i].trim { it <= ' ' }
             }
             return u
         }
@@ -204,7 +203,7 @@ internal object Parser {
             return seq
         }
         val result: MutableList<Pattern?> =
-            if (seq.size > 1) list(Required(seq))
+            if (seq.size > 1) mutableListOf(Required(seq))
             else seq
         while ("|" == tokens.current()) {
             tokens.move()
@@ -218,11 +217,11 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): MutableList<Pattern?> {
-        val result = list<Pattern?>()
+        val result = mutableListOf<Pattern?>()
         while (!`in`(tokens.current(), null, "]", ")", "|")) {
             var atom = parseAtom(tokens, options)
             if ("..." == tokens.current()) {
-                atom = list<OneOrMore?>(OneOrMore(atom))
+                atom = mutableListOf(OneOrMore(atom))
                 tokens.move()
             }
             result.addAll(atom)
@@ -331,10 +330,10 @@ internal object Parser {
                 }
             }
             if (tokens.getError() == DocoptExitException::class.java) {
-                o.value = if (value != null) value else true
+                o.value = value ?: true
             }
         }
-        return list(o)
+        return mutableListOf(o)
     }
 
     private fun parseShorts(
@@ -344,11 +343,11 @@ internal object Parser {
         val token = tokens.move()
         assert(token!!.startsWith("-") && !token.startsWith("--"))
         var left = token.replaceFirst("^-+".toRegex(), "")
-        val parsed = list<Option>()
+        val parsed = mutableListOf<Option>()
         while ("" != left) {
             val short = "-" + left[0]
             left = left.substring(1)
-            val similar: MutableList<Option> = list()
+            val similar: MutableList<Option> = mutableListOf()
             options
                 .filter { it.short == short }
                 .forEach { similar.add(it) }

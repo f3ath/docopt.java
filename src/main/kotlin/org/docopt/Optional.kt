@@ -6,7 +6,8 @@ internal open class Optional(children: List<Pattern?>) : BranchPattern(children)
         collected: List<LeafPattern>?
     ): MatchResult {
         var ll: List<LeafPattern> = left
-        var col: List<LeafPattern> = collected ?: Py.list()
+        var col: List<LeafPattern> = collected ?: mutableListOf()
+
         for (pattern in children) {
             val u = pattern!!.match(ll, col)
             ll = u.left

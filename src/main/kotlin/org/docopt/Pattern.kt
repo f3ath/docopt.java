@@ -1,7 +1,6 @@
 package org.docopt
 
 import org.docopt.Py.count
-import org.docopt.Py.list
 import org.docopt.Py.set
 import org.docopt.Py.split
 
@@ -21,9 +20,9 @@ internal abstract class Pattern {
             return
         }
         if (u == null) {
-            u = list<Pattern?>(set(flat()))
+            u = set(flat()).toMutableList()
         }
-        for (i in children!!.indices) {
+        for (i in children.indices) {
             val child = children[i]
             if (child !is BranchPattern) {
                 assert(u.contains(child))
@@ -39,9 +38,9 @@ internal abstract class Pattern {
      */
     private fun fixRepeatingArguments() {
 
-        val either: MutableList<List<Pattern?>> = list()
-        for (child in transform(this).children!!) {
-            either.add(list((child as Required).children!!))
+        val either: MutableList<List<Pattern?>> = mutableListOf()
+        for (child in transform(this).children) {
+            either.add((child as Required).children.toMutableList())
         }
         for (case in either) {
             for (child in case) {
@@ -52,7 +51,7 @@ internal abstract class Pattern {
                             .argCount != 0
                     ) {
                         if (e.value == null) {
-                            e.value = list<Any>()
+                            e.value = mutableListOf<Any>()
                         } else if (e.value !is List<*>) {
                             e.value = split(e.value.toString())
                         }
@@ -87,7 +86,7 @@ internal abstract class Pattern {
          * [-a] => (-a), (-a...) => (-a -a)
          */
         private fun transform(pattern: Pattern): Either {
-            val result = list<List<Pattern?>>()
+            val result = mutableListOf<List<Pattern?>>()
             val groups: MutableList<MutableList<Pattern?>> =
                 mutableListOf(mutableListOf(pattern))
 

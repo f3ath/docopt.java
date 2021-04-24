@@ -1,6 +1,5 @@
 package org.docopt
 
-import org.docopt.Py.list
 import java.io.PrintStream
 import kotlin.system.exitProcess
 
@@ -19,7 +18,7 @@ class Docopt(
 
     private fun doParse(argv: List<String>): Map<String?, Any?> {
         val aaa = Parser.parseArgv(
-            Tokens(argv, DocoptExitException::class.java), list(options), optionsFirst
+            Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
         )
         val patternOptions = pattern
             .flat(

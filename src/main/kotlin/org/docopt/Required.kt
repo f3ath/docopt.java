@@ -1,13 +1,11 @@
 package org.docopt
 
-import org.docopt.Py.list
-
 internal class Required(children: List<Pattern?>?) : BranchPattern(children!!) {
     override fun match(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
     ): MatchResult {
-        val coll = collected ?: list()
+        val coll = collected ?: mutableListOf()
         var l = left
         var c = coll
         for (pattern in children) {

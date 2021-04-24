@@ -8,7 +8,7 @@ internal class Either(children: List<Pattern?>) : BranchPattern(children) {
         collected: List<LeafPattern>?
     ): MatchResult {
         val col: List<LeafPattern> = collected ?: listOf()
-        val outcomes = Py.list<MatchResult>()
+        val outcomes = mutableListOf<MatchResult>()
         for (pattern in children) {
             val m = pattern!!.match(left, col)
             if (m.match) {
