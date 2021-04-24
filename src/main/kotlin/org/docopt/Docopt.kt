@@ -18,7 +18,7 @@ class Docopt(
     private val optionsFirst = false
 
     private fun doParse(argv: List<String>): Map<String?, Any?> {
-        val argv = Parser.parseArgv(
+        val aaa = Parser.parseArgv(
             Tokens(argv, DocoptExitException::class.java), list(options), optionsFirst
         )
         val patternOptions = pattern
@@ -27,10 +27,9 @@ class Docopt(
             )
             .toMutableSet()
 
-        for (optionsShortcut in pattern
-            .flat(OptionsShortcut::class.java)) {
+        for (optionsShortcut in pattern.flat(OptionsShortcut::class.java)) {
             run {
-                val u = (optionsShortcut as BranchPattern).children!!
+                val u = (optionsShortcut as BranchPattern).children
                 u.clear()
                 u.addAll(options)
                 var o: Pattern?
@@ -46,14 +45,13 @@ class Docopt(
                 }
             }
         }
-        Parser.extras(help, version, argv, doc)
-        val m = pattern.fix().match(argv)
+        Parser.extras(help, version, aaa, doc)
+        val m = pattern.fix().match(aaa)
         if (m.matched() && m.left.isEmpty()) {
             val u: MutableMap<String?, Any?> = HashMap()
             for (p in pattern.flat()) {
                 check(p is LeafPattern)
-                val lp = p
-                u[lp.name] = lp.value
+                u[p.name] = p.value
             }
             for (p in m.collected) {
                 u[p.name] = p.value
@@ -63,7 +61,6 @@ class Docopt(
         throw DocoptExitException(exitCode = 1, printUsage = true)
     }
 
-    @Throws(DocoptExitException::class)
     fun parse(argv: List<String>): Map<String?, Any?> {
         return try {
             doParse(argv)
@@ -85,13 +82,11 @@ class Docopt(
         }
     }
 
-    fun parse(vararg argv: String): Map<String?, Any?> {
-        return parse(listOf(*argv))
-    }
+    fun parse(vararg argv: String) = parse(listOf(*argv))
 
     init {
         val usageSections = Parser.parseSection("usage:", doc)
-        if (usageSections.size == 0) {
+        if (usageSections.isEmpty()) {
             throw DocoptLanguageError(
                 "\"usage:\" (case-insensitive) not found."
             )

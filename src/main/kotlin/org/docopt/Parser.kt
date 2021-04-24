@@ -124,7 +124,7 @@ internal object Parser {
                 Re.IGNORECASE or Re.MULTILINE
             )
             for (i in u.indices) {
-                u.set(i, u[i].trim { it <= ' ' })
+                u.set(i, u[i]!!.trim { it <= ' ' })
             }
             return u
         }

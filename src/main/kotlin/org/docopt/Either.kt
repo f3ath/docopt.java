@@ -2,14 +2,14 @@ package org.docopt
 
 import java.util.Collections
 
-internal class Either(children: List<Pattern?>?) : BranchPattern(children ?: listOf()) {
+internal class Either(children: List<Pattern?>) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
     ): MatchResult {
-        val col: List<LeafPattern> = collected ?: Py.list()
+        val col: List<LeafPattern> = collected ?: listOf()
         val outcomes = Py.list<MatchResult>()
-        for (pattern in children!!) {
+        for (pattern in children) {
             val m = pattern!!.match(left, col)
             if (m.matched()) {
                 outcomes.add(m)
