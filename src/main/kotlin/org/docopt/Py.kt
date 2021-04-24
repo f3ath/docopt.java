@@ -127,16 +127,6 @@ internal object Py {
         else -> o.toString()
     }
 
-    fun <T> count(self: List<T>, obj: T): Int {
-        var count = 0
-        for (element in self) {
-            if (element == obj) {
-                count++
-            }
-        }
-        return count
-    }
-
     fun partition(self: String, sep: String): Array<String> {
         val i = self.indexOf(sep)
         if (i == -1) {
@@ -151,17 +141,8 @@ internal object Py {
     }
 
     fun isUpper(self: String): Boolean {
-        var result = false
-        for (c in self.toCharArray()) {
-            if (Character.isLetter(c)) {
-                result = if (Character.isUpperCase(c)) {
-                    true
-                } else {
-                    return false
-                }
-            }
-        }
-        return result
+        val letters = self.toCharArray().filter { it.isLetter() }
+        return letters.isNotEmpty() && letters.all { it.isUpperCase() }
     }
 
     fun split(self: String): MutableList<String> =

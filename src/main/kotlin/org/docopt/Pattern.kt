@@ -1,6 +1,5 @@
 package org.docopt
 
-import org.docopt.Py.count
 import org.docopt.Py.split
 
 internal abstract class Pattern {
@@ -43,7 +42,7 @@ internal abstract class Pattern {
         }
         for (case in either) {
             for (child in case) {
-                if (count(case, child) > 1) {
+                if (case.filter { it == child }.size > 1) {
                     val e = child as LeafPattern?
                     if (e!!.javaClass == Argument::class.java
                         || e.javaClass == Option::class.java && (e as Option?)!!
