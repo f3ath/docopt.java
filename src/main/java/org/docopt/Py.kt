@@ -15,16 +15,16 @@ object Py {
         fun findAll(
             pattern: String,
             string: String, flags: Int
-        ): List<String?> {
+        ): MutableList<String?> {
             return findAll(Pattern.compile(pattern, flags), string)
         }
 
         private fun findAll(
             pattern: Pattern,
             string: String
-        ): List<String?> {
+        ): MutableList<String?> {
             val matcher = pattern.matcher(string)
-            val result = list<String?>()
+            val result = mutableListOf<String?>()
             while (matcher.find()) {
                 if (matcher.groupCount() == 0) {
                     result.add(matcher.group())
@@ -195,6 +195,6 @@ object Py {
         return result
     }
 
-    fun split(self: String): List<String> =
-        list(self.trim { it <= ' ' }.split("\\s+".toRegex()).toTypedArray())
+    fun split(self: String): MutableList<String> =
+        list(self.trim { it <= ' ' }.split("\\s+".toRegex()))
 }

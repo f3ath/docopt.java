@@ -1,12 +1,174 @@
 package org.docopt
 
+import org.docopt.Py.Re
+import org.docopt.Py.Re.findAll
+import org.docopt.Py.Re.split
+import org.docopt.Py.Re.sub
 import org.docopt.Py.`in`
+import org.docopt.Py.bool
 import org.docopt.Py.isUpper
 import org.docopt.Py.join
 import org.docopt.Py.list
 import org.docopt.Py.partition
+import org.docopt.Py.split
+import java.io.InputStream
+import java.util.Scanner
 
 internal object Helper {
+
+    fun parsePattern(
+        source: String?,
+        options: MutableList<Option>
+    ): Required {
+        var source1 = source
+        source1 = sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source1!!)
+        var sour2: MutableList<String>
+        run {
+            sour2 = list()
+            for (s in split("\\s+|(\\S*<.*?>)", source1)) {
+                if (s != null && s != "") {
+                    sour2.add(s)
+                }
+            }
+        }
+        val tokens = Tokens(sour2, DocoptLanguageError::class.java)
+        val result = parseExpr(tokens, options)
+        if (tokens.current() != null) {
+            throw tokens.error("unexpected ending: %s", join(" ", tokens))
+        }
+        return Required(result)
+    }
+
+
+
+
+
+
+    fun parseArgv(
+        tokens: Tokens,
+        options: MutableList<Option>, optionsFirst: Boolean
+    ): List<LeafPattern> {
+        val parsed = list<LeafPattern>()
+        while (tokens.current() != null) {
+            if ("--" == tokens.current()) {
+                run {
+                    for (v in tokens) {
+                        parsed.add(Argument(null, v))
+                    }
+                    return parsed
+                }
+            }
+
+            // TODO: Why don't we check for tokens.current != "--" here?
+            if (tokens.current()!!.startsWith("--")) {
+                parsed.addAll(parseLong(tokens, options))
+            } else if (tokens.current()!!.startsWith("-")
+                && "-" != tokens.current()
+            ) {
+                parsed.addAll(parseShorts(tokens, options))
+            } else if (optionsFirst) {
+                run {
+                    for (v in tokens) {
+                        parsed.add(Argument(null, v))
+                    }
+                    return parsed
+                }
+            } else {
+                parsed.add(Argument(null, tokens.move()))
+            }
+        }
+        return parsed
+    }
+
+    fun read(stream: InputStream): String {
+        Scanner(stream).use { scanner ->
+            scanner.useDelimiter("\\A")
+            return if (scanner.hasNext()) scanner.next() else ""
+        }
+    }
+
+    fun parseSection(
+        name: String,
+        source: String?
+    ): List<String?>? {
+        run {
+            val u = findAll(
+                "^([^\\n]*" + name +
+                    "[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)",
+                source!!,
+                Re.IGNORECASE or Re.MULTILINE
+            )
+            for (i in u.indices) {
+                u.set(i, u[i]!!.trim { it <= ' ' })
+            }
+            return u
+        }
+    }
+
+    fun extras(
+        help: Boolean, version: String?,
+        options: List<LeafPattern>, doc: String
+    ) {
+        var u: Boolean
+        run {
+            u = false
+            if (help) {
+                for (o in options) {
+                    if (("-h" == o.name) or ("--help" == o.name)) {
+                        if (bool(o.value)) {
+                            u = true
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        if (u) {
+            throw DocoptExitException(
+                0, doc.replace("^\\n+|\\n+$".toRegex(), ""),
+                false
+            )
+        }
+        run {
+            u = false
+            if (version != null && version != "") {
+                for (o in options) {
+                    if ("--version" == o.name) {
+                        u = true
+                        break
+                    }
+                }
+            }
+        }
+        if (u) throw DocoptExitException(0, version, false)
+    }
+
+    fun formalUsage(section: String?): String {
+        var sec = section
+        run {
+            val u = partition(sec!!, ":")
+            sec = u[2]
+        }
+        val pu = split(sec!!)
+        run {
+            val sb = StringBuilder()
+            sb.append("( ")
+            val u: String = pu.removeAt(0)
+            if (pu.isNotEmpty()) {
+                for (s in pu) {
+                    if (s == u) {
+                        sb.append(") | (")
+                    } else {
+                        sb.append(s)
+                    }
+                    sb.append(" ")
+                }
+                sb.setLength(sb.length - 1)
+            }
+            sb.append(" )")
+            return sb.toString()
+        }
+    }
 
     fun parseExpr(
         tokens: Tokens,
