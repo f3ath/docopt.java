@@ -7,27 +7,21 @@ internal class Either(children: List<Pattern?>?) : BranchPattern(children ?: lis
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
     ): MatchResult {
-        var collected: List<LeafPattern>? = collected
-        if (collected == null) {
-            collected = Py.list()
-        }
+        val col: List<LeafPattern> = collected ?: Py.list()
         val outcomes = Py.list<MatchResult>()
         for (pattern in children!!) {
-            val m = pattern!!.match(left, collected)
+            val m = pattern!!.match(left, col)
             if (m.matched()) {
                 outcomes.add(m)
             }
         }
-        if (!outcomes.isEmpty()) {
-            // >>> return min(outcomes, key=lambda outcome: len(outcome[1]))
-            run {
-                return Collections.min(outcomes, java.util.Comparator { o1, o2 ->
-                    val s1 = o1.left.size
-                    val s2 = o2.left.size
-                    s1.compareTo(s2)
-                })
+        if (outcomes.isNotEmpty()) {
+            return Collections.min(outcomes) { o1, o2 ->
+                val s1 = o1.left.size
+                val s2 = o2.left.size
+                s1.compareTo(s2)
             }
         }
-        return MatchResult(false, left, collected)
+        return MatchResult(false, left, col)
     }
 }

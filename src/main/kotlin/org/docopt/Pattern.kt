@@ -79,13 +79,6 @@ internal abstract class Pattern {
     override fun hashCode(): Int = javaClass.hashCode()
 
     companion object {
-        private val parents = listOf(
-            Required::class.java,
-            Optional::class.java,
-            OptionsShortcut::class.java,
-            Either::class.java,
-            OneOrMore::class.java
-        )
 
         /**
          * Expand pattern into an (almost) equivalent one, but with single Either.
@@ -95,35 +88,23 @@ internal abstract class Pattern {
          */
         private fun transform(pattern: Pattern): Either {
             val result = list<List<Pattern?>>()
-            val groups: MutableList<MutableList<Pattern?>> = list()
-            groups.add(list(pattern))
+            val groups: MutableList<MutableList<Pattern?>> =
+                mutableListOf(mutableListOf(pattern))
+
             while (groups.isNotEmpty()) {
                 val children = groups.removeAt(0)
-                var child: BranchPattern? = null
-                for (c in children) {
-                    if (parents.contains(c!!.javaClass)) {
-                        child = c as BranchPattern?
-                        break
-                    }
-                }
+                val child: BranchPattern? = children
+                    .filterIsInstance<BranchPattern>()
+                    .firstOrNull()
 
                 if (child != null) {
                     children.remove(child)
-                    if (child.javaClass == Either::class.java) {
-                        for (c in child.children!!) {
-                            val group = list(c)
-                            group.addAll(children)
-                            groups.add(group)
+                    when (child) {
+                        is Either -> child.children!!.forEach {
+                            groups.add((children + listOf(it)).toMutableList())
                         }
-                    } else if (child.javaClass == OneOrMore::class.java) {
-                        val group = list(child.children!!)
-                        group.addAll(child.children!!)
-                        group.addAll(children)
-                        groups.add(group)
-                    } else {
-                        val group = list(child.children!!)
-                        group.addAll(children)
-                        groups.add(group)
+                        is OneOrMore -> groups.add((child.children!! + child.children + children).toMutableList())
+                        else -> groups.add((child.children!! + children).toMutableList())
                     }
                 } else {
                     result.add(children)
