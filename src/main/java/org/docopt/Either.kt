@@ -12,7 +12,7 @@ internal class Either(children: List<Pattern?>?) : BranchPattern(children ?: lis
             collected = Py.list()
         }
         val outcomes = Py.list<MatchResult>()
-        for (pattern in children) {
+        for (pattern in children!!) {
             val m = pattern!!.match(left, collected)
             if (m.matched()) {
                 outcomes.add(m)

@@ -30,7 +30,7 @@ class Docopt(
         for (optionsShortcut in pattern
             .flat(OptionsShortcut::class.java)) {
             run {
-                val u = (optionsShortcut as BranchPattern).children
+                val u = (optionsShortcut as BranchPattern).children!!
                 u.clear()
                 u.addAll(options)
                 var o: Pattern?
