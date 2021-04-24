@@ -9,7 +9,7 @@ import org.docopt.Py.repr
 /**
  * Leaf/terminal node of a pattern tree.
  */
-internal abstract class LeafPattern @JvmOverloads constructor(
+internal abstract class LeafPattern constructor(
     val name: String?,
     var value: Any? = null
 ) : Pattern() {
