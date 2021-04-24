@@ -1,6 +1,6 @@
 package org.docopt
 
-internal open class Optional(children: List<Pattern?>?) : BranchPattern(children) {
+internal open class Optional(children: List<Pattern?>?) : BranchPattern(children!!) {
     override fun match(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?

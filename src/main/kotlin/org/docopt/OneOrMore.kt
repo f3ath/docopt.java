@@ -1,6 +1,6 @@
 package org.docopt
 
-internal class OneOrMore(children: List<Pattern?>?) : BranchPattern(children) {
+internal class OneOrMore(children: List<Pattern?>?) : BranchPattern(children!!) {
     override fun match(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
