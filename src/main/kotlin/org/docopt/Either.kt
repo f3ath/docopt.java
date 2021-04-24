@@ -5,7 +5,7 @@ import java.util.Collections
 internal class Either(children: List<Pattern?>?) : BranchPattern(children ?: listOf()) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>
+        collected: List<LeafPattern>?
     ): MatchResult {
         var collected: List<LeafPattern>? = collected
         if (collected == null) {

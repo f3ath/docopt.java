@@ -3,7 +3,7 @@ package org.docopt
 internal class OneOrMore(children: List<Pattern?>?) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>
+        collected: List<LeafPattern>?
     ): MatchResult {
         var collected: List<LeafPattern> = collected ?: Py.list()
         assert(children!!.size == 1)

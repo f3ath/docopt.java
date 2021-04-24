@@ -29,7 +29,7 @@ internal abstract class BranchPattern(children: List<Pattern?>?) : Pattern() {
         } else children == other!!.children
     }
 
-    public val children: MutableList<Pattern?>?
+     val children: MutableList<Pattern?>?
     override fun toString(): String {
         return String.format(
             "%s(%s)", javaClass.simpleName,
@@ -37,7 +37,7 @@ internal abstract class BranchPattern(children: List<Pattern?>?) : Pattern() {
         )
     }
 
-    public override fun flat(vararg types: Class<*>): List<Pattern> {
+     override fun flat(vararg types: Class<*>): List<Pattern> {
         if (`in`<Class<*>>(javaClass, *types)) {
             return list<Pattern>(this)
         }

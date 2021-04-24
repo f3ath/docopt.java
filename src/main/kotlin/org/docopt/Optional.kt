@@ -3,7 +3,7 @@ package org.docopt
 internal open class Optional(children: List<Pattern?>?) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>
+        collected: List<LeafPattern>?
     ): MatchResult {
         var left: List<LeafPattern> = left
         var collected: List<LeafPattern> = collected ?: Py.list()

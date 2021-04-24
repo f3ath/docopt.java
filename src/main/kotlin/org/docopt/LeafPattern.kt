@@ -30,7 +30,7 @@ internal abstract class LeafPattern @JvmOverloads constructor(
 
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>
+        collected: List<LeafPattern>?
     ): MatchResult {
         var collected: List<LeafPattern>? = collected
         if (collected == null) {
