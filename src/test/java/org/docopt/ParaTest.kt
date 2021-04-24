@@ -36,7 +36,7 @@ class ParaTest {
     private fun getDefs(url: URL) = sequence {
         println("Generating test cases from $url")
 
-        var raw = Helper.read(url.openStream())
+        var raw = Parser.read(url.openStream())
 
         raw = Pattern
             .compile("#.*$", Pattern.MULTILINE)

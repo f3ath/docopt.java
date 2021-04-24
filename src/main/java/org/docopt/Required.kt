@@ -2,7 +2,7 @@ package org.docopt
 
 import org.docopt.Py.list
 
-internal class Required(children: List<Pattern?>?) : BranchPattern(children) {
+internal  class Required(children: List<Pattern?>?) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?

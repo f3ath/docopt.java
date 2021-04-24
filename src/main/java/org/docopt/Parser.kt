@@ -1,5 +1,6 @@
 package org.docopt
 
+import org.docopt.Option.Companion.parse
 import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
 import org.docopt.Py.Re.split
@@ -14,7 +15,36 @@ import org.docopt.Py.split
 import java.io.InputStream
 import java.util.Scanner
 
-internal object Helper {
+internal object Parser {
+
+    fun parseDefaults(doc: String?): MutableList<Option> {
+        val defaults = list<Option>()
+        for (s in parseSection("options:", doc)) {
+            var s = partition(s, ":")[2]
+            var split: List<String?>
+            val pattern = "\\n *(-\\S+?)"
+            val s1 = "\n" + s
+            split = split(pattern, s1).toMutableList()
+            split.removeAt(0)
+            run {
+                val u = list<String?>()
+                var i = 1
+                while (i < split.size) {
+                    u.add(split[i - 1] + split[i])
+                    i += 2
+                }
+                split = u
+            }
+            run {
+                for (sss in split) {
+                    if (sss!!.startsWith("-")) {
+                        defaults.add(parse(sss))
+                    }
+                }
+            }
+        }
+        return defaults
+    }
 
     fun parsePattern(
         source: String?,
@@ -38,11 +68,6 @@ internal object Helper {
         }
         return Required(result)
     }
-
-
-
-
-
 
     fun parseArgv(
         tokens: Tokens,
@@ -90,7 +115,7 @@ internal object Helper {
     fun parseSection(
         name: String,
         source: String?
-    ): List<String?>? {
+    ): List<String> {
         run {
             val u = findAll(
                 "^([^\\n]*" + name +
@@ -99,7 +124,7 @@ internal object Helper {
                 Re.IGNORECASE or Re.MULTILINE
             )
             for (i in u.indices) {
-                u.set(i, u[i]!!.trim { it <= ' ' })
+                u.set(i, u[i].trim { it <= ' ' })
             }
             return u
         }
@@ -170,7 +195,7 @@ internal object Helper {
         }
     }
 
-    fun parseExpr(
+    private fun parseExpr(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Pattern?> {
@@ -242,7 +267,7 @@ internal object Helper {
         } else listOf(Command(tokens.move()))
     }
 
-    fun parseLong(
+    private fun parseLong(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
@@ -312,7 +337,7 @@ internal object Helper {
         return list(o)
     }
 
-    fun parseShorts(
+    private fun parseShorts(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {

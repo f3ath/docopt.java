@@ -15,16 +15,16 @@ object Py {
         fun findAll(
             pattern: String,
             string: String, flags: Int
-        ): MutableList<String?> {
+        ): MutableList<String> {
             return findAll(Pattern.compile(pattern, flags), string)
         }
 
         private fun findAll(
             pattern: Pattern,
             string: String
-        ): MutableList<String?> {
+        ): MutableList<String> {
             val matcher = pattern.matcher(string)
-            val result = mutableListOf<String?>()
+            val result = mutableListOf<String>()
             while (matcher.find()) {
                 if (matcher.groupCount() == 0) {
                     result.add(matcher.group())

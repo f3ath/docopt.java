@@ -4,7 +4,7 @@ internal class Option @JvmOverloads constructor(
     `$short`: String?, `$long`: String?, argCount: Int = 0,
     value: Any? = false
 ) : LeafPattern(
-    `$long` ?: `$short`,  // >>> self.value = None if value is False and argcount else
+    `$long` ?: `$short`,
     if (java.lang.Boolean.FALSE == value && argCount != 0) null else value
 ) {
     val short: String?
