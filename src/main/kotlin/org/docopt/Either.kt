@@ -11,15 +11,13 @@ internal class Either(children: List<Pattern?>) : BranchPattern(children) {
         val outcomes = Py.list<MatchResult>()
         for (pattern in children) {
             val m = pattern!!.match(left, col)
-            if (m.matched()) {
+            if (m.match) {
                 outcomes.add(m)
             }
         }
         if (outcomes.isNotEmpty()) {
             return Collections.min(outcomes) { o1, o2 ->
-                val s1 = o1.left.size
-                val s2 = o2.left.size
-                s1.compareTo(s2)
+                o1.left.size.compareTo(o2.left.size)
             }
         }
         return MatchResult(false, left, col)

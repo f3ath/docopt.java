@@ -47,7 +47,7 @@ class Docopt(
         }
         Parser.extras(help, version, aaa, doc)
         val m = pattern.fix().match(aaa)
-        if (m.matched() && m.left.isEmpty()) {
+        if (m.match && m.left.isEmpty()) {
             val u: MutableMap<String?, Any?> = HashMap()
             for (p in pattern.flat()) {
                 check(p is LeafPattern)

@@ -1,6 +1,6 @@
 package org.docopt
 
-internal class Command @JvmOverloads constructor(name: String?, value: Any? = false) :
+internal class Command constructor(name: String?, value: Any? = false) :
     Argument(name, value) {
     override fun singleMatch(left: List<LeafPattern>): SingleMatchResult {
         for (n in left.indices) {

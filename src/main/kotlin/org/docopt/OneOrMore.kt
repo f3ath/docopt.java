@@ -16,7 +16,7 @@ internal class OneOrMore(children: List<Pattern?>) : BranchPattern(children) {
             val m = children[0]!!.match(l, c)
             l = m.left
             c = m.collected
-            if (m.matched()) {
+            if (m.match) {
                 times++
             }
             if (l == l_) {

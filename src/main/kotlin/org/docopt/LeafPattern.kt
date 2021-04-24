@@ -22,7 +22,7 @@ internal abstract class LeafPattern constructor(
 
     override fun flat(vararg types: Class<*>): List<Pattern> {
         run {
-            return if (!bool(types) || `in`<Class<*>>(javaClass, *types)) {
+            return if (!bool(types) || `in`(javaClass, *types)) {
                 list(this as Pattern)
             } else list()
         }
@@ -32,10 +32,7 @@ internal abstract class LeafPattern constructor(
         left: List<LeafPattern>,
         collected: List<LeafPattern>?
     ): MatchResult {
-        var collected: List<LeafPattern>? = collected
-        if (collected == null) {
-            collected = list()
-        }
+        val col: List<LeafPattern> = collected ?: mutableListOf()
         var pos: Int?
         var match: LeafPattern?
         run {
@@ -44,7 +41,7 @@ internal abstract class LeafPattern constructor(
             match = m.match
         }
         if (match == null) {
-            return MatchResult(false, left, collected)
+            return MatchResult(false, left, col)
         }
         var left_: MutableList<LeafPattern>
         run {
@@ -57,7 +54,7 @@ internal abstract class LeafPattern constructor(
         var sameName: MutableList<LeafPattern>
         run {
             sameName = list()
-            for (a in collected) {
+            for (a in col) {
                 if (name == a.name) {
                     sameName.add(a)
                 }
@@ -75,7 +72,7 @@ internal abstract class LeafPattern constructor(
                 match!!.value = increment
                 return MatchResult(
                     true, left_,
-                    plus(collected, list(match!!))
+                    plus(col, list(match!!))
                 )
             }
             run {
@@ -92,11 +89,11 @@ internal abstract class LeafPattern constructor(
             }
 
             // TODO: Should collected be copied to a new list?
-            return MatchResult(true, left_, collected)
+            return MatchResult(true, left_, col)
         }
         return MatchResult(
             true, left_, plus(
-                collected, list(
+                col, list(
                     match!!
                 )
             )
@@ -104,31 +101,13 @@ internal abstract class LeafPattern constructor(
     }
 
     protected abstract fun singleMatch(left: List<LeafPattern>): SingleMatchResult
+
     override fun hashCode(): Int {
-        val prime = 31
-        var result = super.hashCode()
-        result = prime * result + (name?.hashCode() ?: 0)
-        result = prime * result + if (value == null) 0 else value.hashCode()
+        var result = 31 * super.hashCode() + (name?.hashCode() ?: 0)
+        result = 31 * result + if (value == null) 0 else value.hashCode()
         return result
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) {
-            return true
-        }
-        if (javaClass != obj!!.javaClass) {
-            return false
-        }
-        val other = obj as LeafPattern?
-        if (name == null) {
-            if (other!!.name != null) {
-                return false
-            }
-        } else if (name != other!!.name) {
-            return false
-        }
-        return if (value == null) {
-            other.value == null
-        } else value == other.value
-    }
+    override fun equals(other: Any?): Boolean =
+        other is LeafPattern && other.name == name && other.value == value
 }

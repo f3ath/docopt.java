@@ -1,24 +1,27 @@
 package org.docopt
 
-internal class Option @JvmOverloads constructor(
-    `$short`: String?, `$long`: String?, argCount: Int = 0,
+internal class Option constructor(
+    val short: String?,
+    val long: String?,
+    val argCount: Int = 0,
     value: Any? = false
 ) : LeafPattern(
-    `$long` ?: `$short`,
-    if (java.lang.Boolean.FALSE == value && argCount != 0) null else value
+    long ?: short,
+    if (false == value && argCount != 0) null else value
 ) {
-    val short: String?
-    val long: String?
-    val argCount: Int
-    override fun singleMatch(left: List<LeafPattern>): SingleMatchResult {
-        for (n in left.indices) {
-            val pattern = left[n]
-            if (name == pattern.name) {
-                return SingleMatchResult(n, pattern)
-            }
-        }
-        return SingleMatchResult()
+    init {
+        assert(argCount == 0 || argCount == 1)
     }
+
+    override fun singleMatch(left: List<LeafPattern>): SingleMatchResult = left
+        .withIndex()
+        .firstOrNull { (_, pattern) -> pattern.name == name }
+        ?.let { (n, pattern) ->
+            SingleMatchResult(
+                position = n,
+                match = pattern
+            )
+        } ?: SingleMatchResult()
 
     override fun hashCode(): Int {
         val prime = 31
@@ -29,63 +32,34 @@ internal class Option @JvmOverloads constructor(
         return result
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (!super.equals(other)) {
-            return false
-        }
-        if (javaClass != other.javaClass) {
-            return false
-        }
-        val other = other as Option
-        if (long == null) {
-            if (other.long != null) {
-                return false
-            }
-        } else if (long != other.long) {
-            return false
-        }
-        if (short == null) {
-            if (other.short != null) {
-                return false
-            }
-        } else if (short != other.short) {
-            return false
-        }
-        return argCount == other.argCount
-    }
+    override fun equals(other: Any?): Boolean = other is Option
+        && super.equals(other)
+        && other.long == long
+        && other.short == short
+        && other.argCount == argCount
 
-    override fun toString(): String {
-        return String.format(
-            "%s(%s, %s, %s, %s)", javaClass.simpleName,
-            Py.repr(short)
-        )
-    }
+    override fun toString(): String = String.format(
+        "%s(%s, %s, %s, %s)", javaClass.simpleName,
+        Py.repr(short)
+    )
 
     companion object {
-        @JvmStatic
-		fun parse(optionDescription: String): Option {
+        fun parse(optionDescription: String): Option {
             var short: String? = null
             var long: String? = null
             var argCount = 0
             var value: Any? = false
             var options: String
-            var description: String
-            run {
-                val a = Py.partition(optionDescription.trim { it <= ' ' }, "  ")
-                options = a[0]
-                description = a[2]
-            }
-            options = options.replace(",".toRegex(), " ").replace("=".toRegex(), " ")
+            val description: String
+            val a = Py.partition(optionDescription.trim { it <= ' ' }, "  ")
+            options = a[0]
+            description = a[2]
+            options = options.replace(",", " ").replace("=", " ")
             for (s in Py.split(options)) {
-                if (s.startsWith("--")) {
-                    long = s
-                } else if (s.startsWith("-")) {
-                    short = s
-                } else {
-                    argCount = 1
+                when {
+                    s.startsWith("--") -> long = s
+                    s.startsWith("-") -> short = s
+                    else -> argCount = 1
                 }
             }
             if (argCount != 0) {
@@ -96,12 +70,5 @@ internal class Option @JvmOverloads constructor(
             }
             return Option(short, long, argCount, value)
         }
-    }
-
-    init {
-        assert(argCount == 0 || argCount == 1)
-        short = `$short`
-        long = `$long`
-        this.argCount = argCount
     }
 }
