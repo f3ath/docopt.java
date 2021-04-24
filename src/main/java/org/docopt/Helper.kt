@@ -16,17 +16,15 @@ internal object Helper {
         if ("|" != tokens.current()) {
             return seq
         }
-        val result: MutableList<Pattern?> = if (seq.size > 1) list(
-            Required(
-                seq
-            ) as Pattern
-        ) else seq
+        val result: MutableList<Pattern?> =
+            if (seq.size > 1) list(Required(seq))
+            else seq
         while ("|" == tokens.current()) {
             tokens.move()
             seq = parseSeq(tokens, options)
-            result.addAll(if (seq.size > 1) list<Required?>(Required(seq)) else seq)
+            result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
         }
-        return if (result.size > 1) list<Either?>(Either(result)) else result
+        return if (result.size > 1) listOf(Either(result)) else result
     }
 
     private fun parseSeq(
@@ -50,28 +48,26 @@ internal object Helper {
         options: MutableList<Option>
     ): List<Pattern?> {
         val token = tokens.current()
-        var result: List<Pattern?>
+        val result: List<Pattern?>
         if ("(" == token || "[" == token) {
             tokens.move()
-            var matching: String
-            run {
-                val u = parseExpr(tokens, options)
-                if ("(" == token) {
-                    matching = ")"
-                    result = list<Pattern?>(Required(u))
-                } else {
-                    matching = "]"
-                    result = list<Pattern?>(Optional(u))
-                }
+            val matching: String
+            val u = parseExpr(tokens, options)
+            if ("(" == token) {
+                matching = ")"
+                result = listOf(Required(u))
+            } else {
+                matching = "]"
+                result = listOf(Optional(u))
             }
             if (matching != tokens.move()) {
                 throw tokens.error("unmatched '%s'", token)
             }
-            return list(result)
+            return result
         }
         if ("options" == token) {
             tokens.move()
-            return list<OptionsShortcut?>(OptionsShortcut())
+            return listOf(OptionsShortcut())
         }
         if (token!!.startsWith("--") && "--" != token) {
             return parseLong(tokens, options)
@@ -80,53 +76,39 @@ internal object Helper {
             return parseShorts(tokens, options)
         }
         return if (token.startsWith("<") && token.endsWith(">") || isUpper(token)) {
-            list<Argument?>(Argument(tokens.move()))
-        } else list<Command?>(Command(tokens.move()))
+            listOf(Argument(tokens.move()))
+        } else listOf(Command(tokens.move()))
     }
 
     fun parseLong(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        var long: String
-        var eq: String
+        val long: String
+        val eq: String
         var value: String?
-        run {
-            val a = partition(tokens.move()!!, "=")
-            long = a[0]
-            eq = a[1]
-            value = a[2]
-        }
+        val a = partition(tokens.move()!!, "=")
+        long = a[0]
+        eq = a[1]
+        value = a[2]
+
         assert(long.startsWith("--"))
         if ("" == eq && "" == value) {
             value = null
         }
-        var similar: MutableList<Option>
-        run {
-            similar = list()
-            for (o in options) {
-                if (long == o.long) {
-                    similar.add(o)
-                }
-            }
-        }
+        val similar = options
+            .map { it }
+            .filter { it.long == long }.toMutableList()
+
         if (tokens.getError() == DocoptExitException::class.java && similar.isEmpty()) {
-            run {
-                for (o in options) {
-                    if (o.long != null && o.long.startsWith(long)) {
-                        similar.add(o)
-                    }
-                }
-            }
+            options
+                .filter { it.long?.startsWith(long) ?: false }
+                .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
-            val u: MutableList<String?> = list()
-            for (o in similar) {
-                u.add(o.long)
-            }
             throw tokens.error(
                 "%s is not a unique prefix: %s?", long,
-                join(", ", u)
+                join(", ", similar.map { it.long })
             )
         }
         var o: Option
@@ -147,21 +129,16 @@ internal object Helper {
             }
             if (o.argCount == 0) {
                 if (value != null) {
-                    throw tokens.error(
-                        "%s must not have an argument",
-                        o.long
-                    )
+                    throw tokens.error("%s must not have an argument", o.long)
                 }
             } else {
                 if (value == null) {
-                    run {
-                        val u = tokens.current()
-                        if (u == null || "--" == u) {
-                            throw tokens.error(
-                                "%s requires argument",
-                                o.long
-                            )
-                        }
+                    val u = tokens.current()
+                    if (u == null || "--" == u) {
+                        throw tokens.error(
+                            "%s requires argument",
+                            o.long
+                        )
                     }
                     value = tokens.move()
                 }
@@ -184,21 +161,14 @@ internal object Helper {
         while ("" != left) {
             val short = "-" + left[0]
             left = left.substring(1)
-            var similar: MutableList<Option>
-            run {
-                similar = list()
-                for (o in options) {
-                    if (short == o.short) {
-                        similar.add(o)
-                    }
-                }
-            }
-            if (similar.size > 1) {
-                throw tokens.error(
-                    "%s is specified ambiguously %d times",
-                    short, similar.size
-                )
-            }
+            val similar: MutableList<Option> = list()
+            options
+                .filter { it.short == short }
+                .forEach { similar.add(it) }
+            if (similar.size > 1) throw tokens.error(
+                "%s is specified ambiguously %d times",
+                short, similar.size
+            )
             var o: Option
             if (similar.size < 1) {
                 o = Option(short, null, 0)
@@ -207,33 +177,22 @@ internal object Helper {
                     o = Option(short, null, 0, true)
                 }
             } else {
-                run {
-                    val u = similar[0]
-                    o = Option(
-                        short, u.long, u.argCount,
-                        u.value
-                    )
-                }
+                val u = similar[0]
+                o = Option(short, u.long, u.argCount, u.value)
                 var value: String? = null
-                if (o.argCount != 0) {
-                    if ("" == left) {
-                        run {
-                            val u = tokens.current()
-                            if (u == null || "--" == u) {
-                                throw tokens.error(
-                                    "%s requires argument",
-                                    short
-                                )
-                            }
-                            value = tokens.move()
-                        }
-                    } else {
-                        value = left
-                        left = ""
-                    }
+                if (o.argCount != 0) if ("" == left) {
+                    val u = tokens.current()
+                    if (u == null || "--" == u) throw tokens.error(
+                        "%s requires argument",
+                        short
+                    )
+                    value = tokens.move()
+                } else {
+                    value = left
+                    left = ""
                 }
                 if (tokens.getError() == DocoptExitException::class.java) {
-                    o.value = if (value != null) value else true
+                    o.value = value ?: true
                 }
             }
             parsed.add(o)
