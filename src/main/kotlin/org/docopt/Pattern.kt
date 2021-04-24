@@ -44,20 +44,14 @@ internal abstract class Pattern {
             for (child in case) {
                 if (case.filter { it == child }.size > 1) {
                     val e = child as LeafPattern?
-                    if (e!!.javaClass == Argument::class.java
-                        || e.javaClass == Option::class.java && (e as Option?)!!
-                            .argCount != 0
-                    ) {
+                    if (e is Argument || e is Option && e.argCount != 0) {
                         if (e.value == null) {
                             e.value = mutableListOf<Any>()
                         } else if (e.value !is List<*>) {
                             e.value = split(e.value.toString())
                         }
                     }
-                    if (e.javaClass == Command::class.java
-                        || e.javaClass == Option::class.java && (e as Option?)!!
-                            .argCount == 0
-                    ) {
+                    if (e is Command || e is Option && e.argCount == 0) {
                         e.value = 0
                     }
                 }

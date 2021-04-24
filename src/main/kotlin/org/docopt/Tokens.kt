@@ -17,14 +17,11 @@ class Tokens(source: List<String>, private val error: Class<out Throwable>) : Ar
     ): IllegalStateException {
         val message = String.format(format!!, *args)
         if (error == DocoptLanguageError::class.java) {
-            throw org.docopt.DocoptLanguageError(message)
+            throw DocoptLanguageError(message)
         }
         if (error == DocoptExitException::class.java) {
-            throw org.docopt.DocoptExitException(1, message, true)
+            throw DocoptExitException(1, message, true)
         }
-        return IllegalStateException(
-            "Unexpected exception: "
-                + error.name
-        )
+        return IllegalStateException("Unexpected exception: ${error.name}")
     }
 }
