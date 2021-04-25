@@ -58,7 +58,7 @@ internal object Parser {
         val tokens = Tokens(sour2, DocoptLanguageError::class.java)
         val result = parseExpr(tokens, options)
         if (tokens.isNotEmpty()) {
-            throw tokens.throwError("unexpected ending: %s", tokens.joinToString(" "))
+            tokens.throwError("unexpected ending: ${tokens.joinToString(" ")}")
         }
         return Required(result)
     }
@@ -197,7 +197,7 @@ internal object Parser {
                 result = listOf(Optional(u))
             }
             if (matching != tokens.pop()) {
-                throw tokens.throwError("unmatched '%s'", token)
+                tokens.throwError("unmatched '$token'")
             }
             return result
         }
@@ -243,48 +243,42 @@ internal object Parser {
                 .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
-            throw tokens.throwError(
+            tokens.throwError(
                 "%s is not a unique prefix: %s?", long,
                 similar.map { it.long }.joinToString(", ")
             )
         }
-        var o: Option
+        var option: Option
         if (similar.size < 1) {
             val argCount = if ("=" == eq) 1 else 0
-            o = Option(null, long, argCount)
-            options.add(o)
+            option = Option(null, long, argCount)
+            options.add(option)
             if (tokens.error == DocoptExitException::class.java) {
-                o = Option(null, long, argCount, if (argCount != 0) value else true)
+                option = Option(null, long, argCount, if (argCount != 0) value else true)
             }
         } else {
-            run {
-                val u = similar[0]
-                o = Option(
-                    u.short, u.long, u.argCount,
-                    u.value
-                )
-            }
-            if (o.argCount == 0) {
+            option = similar.first().clone()
+            if (option.argCount == 0) {
                 if (value != null) {
-                    throw tokens.throwError("%s must not have an argument", o.long)
+                    tokens.throwError("${option.long} must not have an argument")
                 }
             } else {
                 if (value == null) {
                     val u = tokens.peek()
                     if (u == null || "--" == u) {
-                        throw tokens.throwError(
+                        tokens.throwError(
                             "%s requires argument",
-                            o.long
+                            option.long
                         )
                     }
                     value = tokens.pop()
                 }
             }
             if (tokens.error == DocoptExitException::class.java) {
-                o.value = value ?: true
+                option.value = value ?: true
             }
         }
-        return mutableListOf(o)
+        return mutableListOf(option)
     }
 
     private fun parseShorts(
@@ -302,7 +296,7 @@ internal object Parser {
             options
                 .filter { it.short == short }
                 .forEach { similar.add(it) }
-            if (similar.size > 1) throw tokens.throwError(
+            if (similar.size > 1) tokens.throwError(
                 "%s is specified ambiguously %d times",
                 short, similar.size
             )
@@ -319,7 +313,7 @@ internal object Parser {
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
                     val u = tokens.peek()
-                    if (u == null || "--" == u) throw tokens.throwError(
+                    if (u == null || "--" == u) tokens.throwError(
                         "%s requires argument",
                         short
                     )

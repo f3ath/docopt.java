@@ -13,6 +13,8 @@ internal class Option constructor(
         assert(argCount == 0 || argCount == 1)
     }
 
+    fun clone() = Option(short, long, argCount, value)
+
     override fun singleMatch(left: List<LeafPattern>): SingleMatchResult = left
         .withIndex()
         .firstOrNull { (_, pattern) -> pattern.name == name }

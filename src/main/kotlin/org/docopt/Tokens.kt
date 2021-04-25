@@ -12,7 +12,7 @@ class Tokens(
     fun throwError(
         format: String,
         vararg args: Any?
-    ): IllegalStateException {
+    ): Nothing {
         val message = String.format(format, *args)
         if (error == DocoptLanguageError::class.java) {
             throw DocoptLanguageError(message)
@@ -20,6 +20,6 @@ class Tokens(
         if (error == DocoptExitException::class.java) {
             throw DocoptExitException(1, message, true)
         }
-        return IllegalStateException("Unexpected exception: ${error.name}")
+        throw IllegalStateException("Unexpected exception: ${error.name}")
     }
 }
