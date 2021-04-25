@@ -12,45 +12,47 @@ import java.util.Scanner
 
 internal object Parser {
 
-    fun parseDefaults(doc: String?): MutableList<Option> = parseSection("options:", doc)
+    fun parseDefaults(doc: String): MutableList<Option> = parseSection("options:", doc)
         .flatMap { generateDefaults(it) }
         .toMutableList()
 
-    private fun generateDefaults(section: String) = sequence {
-        val ss = section.split(":", limit = 2).last()
-        var split: List<String?>
-        val pattern = "\\n *(-\\S+?)"
-        val s1 = "\n" + ss
-        split = split(pattern, s1).toMutableList()
-        split.removeAt(0)
-        val u = mutableListOf<String?>()
-        var i = 1
-        while (i < split.size) {
-            u.add(split[i - 1] + split[i])
-            i += 2
-        }
-        split = u
-        for (sss in split) {
-            if (sss!!.startsWith("-")) {
-                val element = parse(sss)
-                yield(element)
+    private fun generateDefaults(section: String): Sequence<Option> = removeHeader(section)
+        .lines()
+        .let { splitOptions(it) }
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .map { parse(it) }
+
+    private fun splitOptions(lines: List<String>) = sequence {
+        var option = lines.first()
+        for (line in lines.drop(1)) {
+            if (line.trim().startsWith("-")) {
+                yield(option)
+                option = line
+            } else {
+                option += line
             }
         }
+        yield(option)
     }
 
+    /**
+     * Removes the headers ending on ":", if it exists
+     */
+    private fun removeHeader(section: String) = if (section.contains(":"))
+        section.split(":", limit = 2).last()
+    else
+        section
+
     fun parsePattern(
-        source: String?,
+        source: String,
         options: MutableList<Option>
     ): Required {
-        var source1 = source
-        source1 = sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source1!!)
-        var sour2: MutableList<String>
-        run {
-            sour2 = mutableListOf()
-            for (s in split("\\s+|(\\S*<.*?>)", source1)) {
-                if (s != null && s != "") {
-                    sour2.add(s)
-                }
+        val source1 = sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source)
+        val sour2: MutableList<String> = mutableListOf()
+        for (s in split("\\s+|(\\S*<.*?>)", source1)) {
+            if (s != null && s != "") {
+                sour2.add(s)
             }
         }
         val tokens = Tokens(sour2, DocoptLanguageError::class.java)
@@ -102,40 +104,31 @@ internal object Parser {
 
     fun parseSection(
         name: String,
-        source: String?
+        source: String
     ): List<String> {
         val u = findAll(
             "^([^\\n]*$name[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)",
-            source!!,
+            source,
             Re.IGNORECASE or Re.MULTILINE
         )
-        for (i in u.indices) {
-            u[i] = u[i].trim()
-        }
-        return u
+        return u.map { it.trim() }
     }
 
     fun formalUsage(section: String?): String {
         val sec = section!!.split(":", limit = 2).last()
         val pu = split(sec)
-        run {
-            val sb = StringBuilder()
-            sb.append("( ")
-            val u: String = pu.removeAt(0)
-            if (pu.isNotEmpty()) {
-                for (s in pu) {
-                    if (s == u) {
-                        sb.append(") | (")
-                    } else {
-                        sb.append(s)
-                    }
-                    sb.append(" ")
-                }
-                sb.setLength(sb.length - 1)
+        val sb = StringBuilder()
+        sb.append("( ")
+        val u: String = pu.removeAt(0)
+        if (pu.isNotEmpty()) {
+            for (s in pu) {
+                if (s == u) sb.append(") | (") else sb.append(s)
+                sb.append(" ")
             }
-            sb.append(" )")
-            return sb.toString()
+            sb.setLength(sb.length - 1)
         }
+        sb.append(" )")
+        return sb.toString()
     }
 
     private fun parseExpr(
@@ -294,8 +287,8 @@ internal object Parser {
                 o = Option(short, u.long, u.argCount, u.value)
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
-                    val u = tokens.peek()
-                    if (u == null || "--" == u) tokens.throwError("$short requires argument")
+                    val tok = tokens.peek()
+                    if (tok == null || "--" == tok) tokens.throwError("$short requires argument")
                     value = tokens.pop()
                 } else {
                     value = left

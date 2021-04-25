@@ -17,6 +17,7 @@ class ParaTest {
             .map {
                 val message = String.format("%s\n$ %s", it.doc, quote(it.argv))
                 dynamicTest(message) {
+                    println(message)
                     val actual: Any = try {
                         Docopt(
                             doc = it.doc,
