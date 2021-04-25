@@ -4,25 +4,28 @@ import org.docopt.Option.Companion.parse
 import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
 import org.docopt.Py.Re.split
-import org.docopt.Py.Re.sub
 import org.docopt.Py.isUpper
 import org.docopt.Py.split
 import java.io.InputStream
 import java.util.Scanner
+import java.util.regex.Pattern.compile
 
 internal object Parser {
-
-    fun parseDefaults(doc: String): MutableList<Option> = parseSection("options:", doc)
-        .map { removeHeader(it) }
-        .flatMap { parseOptions(it) }
+    fun parseOptions(doc: String) = parseSection("options:", doc)
+        .map { dropHeader(it) }
+        .flatMap { parseOptionsFromSection(it) }
         .toMutableList()
 
-    private fun parseOptions(section: String): Sequence<Option> = section
-        .lines()
-        .let { combineOptions(it) }
-        .map { it.trim() }
-        .filter { it.isNotEmpty() }
-        .map { parse(it) }
+    private fun dropHeader(section: String) =
+        section.split("options:", limit = 2, ignoreCase = true).last()
+
+    private fun parseOptionsFromSection(section: String) =
+        section
+            .lines()
+            .let { combineOptions(it) }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { parse(it) }
 
     private fun combineOptions(lines: List<String>) = sequence {
         var option = lines.first()
@@ -37,26 +40,19 @@ internal object Parser {
         yield(option)
     }
 
-    /**
-     * Removes the headers ending on ":", if it exists
-     */
-    private fun removeHeader(section: String) = if (section.contains(":"))
-        section.split(":", limit = 2).last()
-    else
-        section
-
     fun parsePattern(
         source: String,
         options: MutableList<Option>
     ): Required {
-        val source1 = sub("([\\[\\]\\(\\)\\|]|\\.\\.\\.)", " $1 ", source)
-        val sour2: MutableList<String> = mutableListOf()
-        for (s in split("\\s+|(\\S*<.*?>)", source1)) {
-            if (s != null && s != "") {
-                sour2.add(s)
-            }
-        }
-        val tokens = Tokens(sour2, DocoptLanguageError::class.java)
+        val wrapped = compile("([\\[\\]()|]|\\.\\.\\.)")
+            .matcher(source)
+            .replaceAll(" $1 ")
+
+        val tokens = Regex("\\S*<[\\w ]+>|\\S+")
+            .findAll(wrapped)
+            .map { it.value }
+            .let { Tokens(it.toList(), DocoptLanguageError::class.java) }
+
         val result = parseExpr(tokens, options)
         if (tokens.isNotEmpty()) {
             tokens.throwError("unexpected ending: ${tokens.joinToString(" ")}")

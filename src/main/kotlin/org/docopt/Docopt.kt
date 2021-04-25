@@ -13,8 +13,10 @@ class Docopt(
     private val optionsFirst: Boolean = false
 ) {
     private val usage: String = Parser.parseSection("usage:", doc).single()
-    private val options = Parser.parseDefaults(doc)
-    private val pattern: Required = Parser.parsePattern(Parser.formalUsage(usage), options)
+    private val options = Parser.parseOptions(doc)
+    private val formalUsage = Parser.formalUsage(usage)
+    private val pattern: Required =
+        Parser.parsePattern(formalUsage, options)
 
     fun parse(argv: List<String>): Map<String, Any?> = try {
         doParse(argv)

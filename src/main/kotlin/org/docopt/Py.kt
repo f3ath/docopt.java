@@ -40,61 +40,6 @@ internal object Py {
             return result
         }
 
-        /**
-         * Determines if [pattern] contains at least one capturing group.
-         */
-        private fun hasGrouping(pattern: String): Boolean {
-
-            var i = -1
-
-            // Find the potential beginning of a group by looking for a left
-            // parenthesis character.
-            while (pattern.indexOf('(', i + 1).also { i = it } != -1) {
-                var c = 0
-
-                // Count the number of escape characters immediately preceding
-                // the
-                // left parenthesis character.
-                for (j in i - 1 downTo -1 + 1) {
-                    if (pattern[j] != '\\') {
-                        break
-                    }
-                    c++
-                }
-
-                // If there is an even number of consecutive escape characters,
-                // the character is not escaped and begins a group.
-                if (c % 2 == 0) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        fun split(
-            pattern: String,
-            string: String
-        ): List<String?> {
-            if (!hasGrouping(pattern)) {
-                return string.split(pattern.toRegex()).toTypedArray().toMutableList()
-            }
-            val matcher = Pattern.compile(pattern, 0).matcher(string)
-            val matches = mutableListOf<String?>()
-            var start = 0
-            while (matcher.find()) {
-                matches.add(string.substring(start, matcher.start()))
-                for (i in 0 until matcher.groupCount()) {
-                    val element = matcher.group(i + 1)
-                    matches.add(element)
-                }
-                start = matcher.end()
-            }
-            matches.add(string.substring(start))
-            return matches
-        }
-
-        fun sub(pattern: String, repl: String, string: String): String =
-            Pattern.compile(pattern, 0).matcher(string).replaceAll(repl)
     }
 
     fun bool(o: Any?): Boolean = when (o) {
