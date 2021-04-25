@@ -20,14 +20,10 @@ class Docopt(
         doParse(argv)
     } catch (e: DocoptExitException) {
         if (!exitOnException) throw e
-        (if (e.exitCode == 0) stdout else stderr)?.let {
-            if (e.message != null) {
-                it.println(e.message)
-            }
-            if (e.printUsage) {
-                it.println(usage)
-            }
-
+        val stream = if (e.isError()) stderr else stdout
+        stream?.let {
+            if (e.message != null) it.println(e.message)
+            if (e.printUsage) it.println(usage)
         }
         exitProcess(e.exitCode)
     }

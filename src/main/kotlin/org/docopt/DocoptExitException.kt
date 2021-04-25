@@ -11,4 +11,6 @@ class DocoptExitException(
     val exitCode: Int,
     message: String? = null,
     val printUsage: Boolean = false
-) : RuntimeException(message)
+) : RuntimeException(message) {
+    fun isError() = exitCode != 0
+}

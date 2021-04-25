@@ -66,33 +66,28 @@ internal object Parser {
 
     fun parseArgv(
         tokens: Tokens,
-        options: MutableList<Option>, optionsFirst: Boolean
+        options: MutableList<Option>,
+        optionsFirst: Boolean
     ): List<LeafPattern> {
         val parsed = mutableListOf<LeafPattern>()
         while (tokens.current() != null) {
             if ("--" == tokens.current()) {
-                run {
-                    for (v in tokens) {
-                        parsed.add(Argument(null, v))
-                    }
-                    return parsed
+                for (v in tokens) {
+                    parsed.add(Argument(null, v))
                 }
+                return parsed
             }
 
             // TODO: Why don't we check for tokens.current != "--" here?
             if (tokens.current()!!.startsWith("--")) {
                 parsed.addAll(parseLong(tokens, options))
-            } else if (tokens.current()!!.startsWith("-")
-                && "-" != tokens.current()
-            ) {
+            } else if (tokens.current()!!.startsWith("-") && "-" != tokens.current()) {
                 parsed.addAll(parseShorts(tokens, options))
             } else if (optionsFirst) {
-                run {
-                    for (v in tokens) {
-                        parsed.add(Argument(null, v))
-                    }
-                    return parsed
+                for (v in tokens) {
+                    parsed.add(Argument(null, v))
                 }
+                return parsed
             } else {
                 parsed.add(Argument(null, tokens.move()))
             }
