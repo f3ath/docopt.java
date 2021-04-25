@@ -16,71 +16,6 @@ class Docopt(
     private val version: String? = null
     private val optionsFirst = false
 
-    private fun doParse(argv: List<String>): Map<String?, Any?> {
-        val aaa = Parser.parseArgv(
-            Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
-        )
-        val patternOptions = pattern
-            .flat(Option::class.java)
-            .toMutableSet()
-
-        for (optionsShortcut in pattern.flat(OptionsShortcut::class.java)) {
-            run {
-                val u = (optionsShortcut as BranchPattern).children
-                u.clear()
-                u.addAll(options)
-                var o: Pattern?
-                val i = u.iterator()
-                while (i.hasNext()) {
-                    o = i.next()
-                    for (x in patternOptions) {
-                        if (o == x) {
-                            i.remove()
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        Parser.extras(help, version, aaa, doc)
-        val m = pattern.fix().match(aaa)
-        if (m.match && m.left.isEmpty()) {
-            val u: MutableMap<String?, Any?> = HashMap()
-            for (p in pattern.flat()) {
-                check(p is LeafPattern)
-                u[p.name] = p.value
-            }
-            for (p in m.collected) {
-                u[p.name] = p.value
-            }
-            return u
-        }
-        throw DocoptExitException(exitCode = 1, printUsage = true)
-    }
-
-    fun parse(argv: List<String>): Map<String?, Any?> {
-        return try {
-            doParse(argv)
-        } catch (e: DocoptExitException) {
-            if (!exit) {
-                throw e
-            }
-            val ps = if (e.exitCode == 0) out else err
-            if (ps != null) {
-                val message = e.message
-                if (message != null) {
-                    ps.println(message)
-                }
-                if (e.printUsage) {
-                    ps.println(usage)
-                }
-            }
-            exitProcess(e.exitCode)
-        }
-    }
-
-    fun parse(vararg argv: String) = parse(listOf(*argv))
-
     init {
         val usageSections = Parser.parseSection("usage:", doc)
         if (usageSections.isEmpty()) {
@@ -93,8 +28,68 @@ class Docopt(
                 "More than one \"usage:\" (case-insensitive)."
             )
         }
-        usage = usageSections[0]
+        usage = usageSections.first()
         options = Parser.parseDefaults(doc)
         pattern = Parser.parsePattern(Parser.formalUsage(usage), options)
+    }
+
+    fun parse(argv: List<String>): Map<String, Any?> = try {
+        doParse(argv)
+    } catch (e: DocoptExitException) {
+        if (!exit) throw e
+        val ps = if (e.exitCode == 0) out else err
+        ps?.let {
+            if (e.message != null) {
+                it.println(e.message)
+            }
+            if (e.printUsage) {
+                it.println(usage)
+            }
+
+        }
+        exitProcess(e.exitCode)
+    }
+
+    fun parse(vararg argv: String) = parse(listOf(*argv))
+
+    private fun doParse(argv: List<String>): Map<String, Any?> {
+        val aaa = Parser.parseArgv(
+            Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
+        )
+        val patternOptions = pattern
+            .flat(Option::class.java)
+            .toMutableSet()
+
+        for (optionsShortcut in pattern.flat(OptionsShortcut::class.java)) {
+            run {
+                val u = (optionsShortcut as BranchPattern).children
+                u.clear()
+                u.addAll(options)
+                val i = u.iterator()
+                while (i.hasNext()) {
+                    val o = i.next()
+                    for (x in patternOptions) {
+                        if (o == x) {
+                            i.remove()
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        Parser.extras(help, version, aaa, doc)
+        val m = pattern.fix().match(aaa)
+        if (m.match && m.left.isEmpty()) {
+            val u: MutableMap<String, Any?> = HashMap()
+            for (p in pattern.flat()) {
+                check(p is LeafPattern)
+                u[p.name!!] = p.value
+            }
+            for (p in m.collected) {
+                u[p.name!!] = p.value
+            }
+            return u
+        }
+        throw DocoptExitException(exitCode = 1, printUsage = true)
     }
 }

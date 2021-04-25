@@ -17,13 +17,10 @@ internal abstract class LeafPattern constructor(
         )
     }
 
-    override fun flat(vararg types: Class<*>): List<Pattern> {
-        run {
-            return if (!bool(types) || types.contains(javaClass)) {
-                mutableListOf(this as Pattern)
-            } else mutableListOf()
-        }
-    }
+    override fun flat(vararg types: Class<*>): List<Pattern> =
+        if (types.isEmpty() || types.contains(javaClass)) {
+            listOf(this)
+        } else listOf()
 
     override fun match(
         left: List<LeafPattern>,

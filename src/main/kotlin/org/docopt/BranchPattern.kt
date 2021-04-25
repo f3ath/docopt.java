@@ -16,10 +16,7 @@ internal abstract class BranchPattern(children: Collection<Pattern?>) : Pattern(
         if (children.isEmpty()) "" else children.joinToString<Any?>(", ")
     )
 
-    override fun flat(vararg types: Class<*>): List<Pattern> {
-        if (types.contains(javaClass)) return mutableListOf(this)
-        val result = mutableListOf<Pattern>()
-        for (child in children) result.addAll(child!!.flat(*types))
-        return result
-    }
+    override fun flat(vararg types: Class<*>): List<Pattern> =
+        if (types.contains(javaClass)) listOf(this)
+        else children.flatMap { it!!.flat(*types) }
 }
