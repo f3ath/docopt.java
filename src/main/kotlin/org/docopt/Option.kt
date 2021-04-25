@@ -51,7 +51,7 @@ internal class Option constructor(
             var value: Any? = false
             var options: String
             val description: String
-            val a = Py.partition(optionDescription.trim { it <= ' ' }, "  ")
+            val a = Py.partition(optionDescription.trim(), "  ")
             options = a[0]
             description = a[2]
             options = options.replace(",", " ").replace("=", " ")

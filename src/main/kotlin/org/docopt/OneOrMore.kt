@@ -3,11 +3,10 @@ package org.docopt
 internal class OneOrMore(children: List<Pattern?>) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>?
+        collected: List<LeafPattern>
     ): MatchResult {
-        val col = collected ?: listOf()
         var l = left
-        var c = col
+        var c = collected
         var ll: List<LeafPattern>? = null
         var times = 0
         while (true) {
@@ -21,6 +20,6 @@ internal class OneOrMore(children: List<Pattern?>) : BranchPattern(children) {
         return if (times >= 1)
             MatchResult(true, l, c)
         else
-            MatchResult(false, left, col)
+            MatchResult(false, left, collected)
     }
 }

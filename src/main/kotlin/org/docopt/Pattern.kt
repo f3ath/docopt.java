@@ -58,7 +58,7 @@ internal abstract class Pattern {
 
     abstract fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>? = null
+        collected: List<LeafPattern> = listOf()
     ): MatchResult
 
     abstract override fun equals(other: Any?): Boolean

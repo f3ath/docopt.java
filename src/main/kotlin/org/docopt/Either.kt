@@ -5,12 +5,11 @@ import java.util.Collections
 internal class Either(children: List<Pattern?>) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>?
+        collected: List<LeafPattern>
     ): MatchResult {
-        val col = collected ?: listOf()
         val outcomes = mutableListOf<MatchResult>()
         for (pattern in children) {
-            val m = pattern!!.match(left, col)
+            val m = pattern!!.match(left, collected)
             if (m.match) outcomes.add(m)
         }
         if (outcomes.isNotEmpty()) {
@@ -18,6 +17,6 @@ internal class Either(children: List<Pattern?>) : BranchPattern(children) {
                 o1.left.size.compareTo(o2.left.size)
             }
         }
-        return MatchResult(false, left, col)
+        return MatchResult(false, left, collected)
     }
 }

@@ -24,9 +24,8 @@ internal abstract class LeafPattern constructor(
 
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>?
+        collected: List<LeafPattern>
     ): MatchResult {
-        val col: List<LeafPattern> = collected ?: mutableListOf()
         var pos: Int?
         var match: LeafPattern?
         run {
@@ -35,7 +34,7 @@ internal abstract class LeafPattern constructor(
             match = m.match
         }
         if (match == null) {
-            return MatchResult(false, left, col)
+            return MatchResult(false, left, collected)
         }
         var left_: MutableList<LeafPattern>
         run {
@@ -48,7 +47,7 @@ internal abstract class LeafPattern constructor(
         var sameName: MutableList<LeafPattern>
         run {
             sameName = mutableListOf()
-            for (a in col) {
+            for (a in collected) {
                 if (name == a.name) {
                     sameName.add(a)
                 }
@@ -66,7 +65,7 @@ internal abstract class LeafPattern constructor(
                 match!!.value = increment
                 return MatchResult(
                     true, left_,
-                    col + mutableListOf(match!!)
+                    collected + mutableListOf(match!!)
                 )
             }
             run {
@@ -83,10 +82,10 @@ internal abstract class LeafPattern constructor(
             }
 
             // TODO: Should collected be copied to a new list?
-            return MatchResult(true, left_, col)
+            return MatchResult(true, left_, collected)
         }
         return MatchResult(
-            true, left_, col + mutableListOf(match!!)
+            true, left_, collected + mutableListOf(match!!)
         )
     }
 

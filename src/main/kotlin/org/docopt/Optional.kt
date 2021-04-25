@@ -3,10 +3,10 @@ package org.docopt
 internal open class Optional(children: List<Pattern?>) : BranchPattern(children) {
     override fun match(
         left: List<LeafPattern>,
-        collected: List<LeafPattern>?
+        collected: List<LeafPattern>
     ): MatchResult {
-        var ll: List<LeafPattern> = left
-        var col: List<LeafPattern> = collected ?: mutableListOf()
+        var ll = left
+        var col = collected
 
         for (pattern in children) {
             val u = pattern!!.match(ll, col)
