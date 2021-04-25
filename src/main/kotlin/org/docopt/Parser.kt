@@ -244,8 +244,7 @@ internal object Parser {
         }
         if (similar.size > 1) {
             tokens.throwError(
-                "%s is not a unique prefix: %s?", long,
-                similar.map { it.long }.joinToString(", ")
+                "$long is not a unique prefix: ${similar.map { it.long }.joinToString(", ")}?"
             )
         }
         var option: Option
@@ -266,10 +265,7 @@ internal object Parser {
                 if (value == null) {
                     val u = tokens.peek()
                     if (u == null || "--" == u) {
-                        tokens.throwError(
-                            "%s requires argument",
-                            option.long
-                        )
+                        tokens.throwError("${option.long} requires argument")
                     }
                     value = tokens.pop()
                 }
@@ -297,8 +293,7 @@ internal object Parser {
                 .filter { it.short == short }
                 .forEach { similar.add(it) }
             if (similar.size > 1) tokens.throwError(
-                "%s is specified ambiguously %d times",
-                short, similar.size
+                "$short is specified ambiguously ${similar.size} times"
             )
             var o: Option
             if (similar.size < 1) {
@@ -314,8 +309,7 @@ internal object Parser {
                 if (o.argCount != 0) if ("" == left) {
                     val u = tokens.peek()
                     if (u == null || "--" == u) tokens.throwError(
-                        "%s requires argument",
-                        short
+                        "$short requires argument"
                     )
                     value = tokens.pop()
                 } else {

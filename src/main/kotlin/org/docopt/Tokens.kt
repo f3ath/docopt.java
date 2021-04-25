@@ -10,10 +10,8 @@ class Tokens(
     fun peek(): String? = if (isEmpty()) null else get(0)
 
     fun throwError(
-        format: String,
-        vararg args: Any?
+        message: String
     ): Nothing {
-        val message = String.format(format, *args)
         if (error == DocoptLanguageError::class.java) {
             throw DocoptLanguageError(message)
         }
