@@ -8,27 +8,17 @@ class Docopt(
     private val exit: Boolean = true,
     private val out: PrintStream? = System.out,
     private val err: PrintStream? = System.err,
+    private val addHelpCommand: Boolean = true,
+    private val applicationVersion: String? = null,
+    private val optionsFirst: Boolean = false
 ) {
     private val usage: String
     private val options: List<Option>
     private val pattern: Required
-    private val help = true
-    private val version: String? = null
-    private val optionsFirst = false
 
     init {
         val usageSections = Parser.parseSection("usage:", doc)
-        if (usageSections.isEmpty()) {
-            throw DocoptLanguageError(
-                "\"usage:\" (case-insensitive) not found."
-            )
-        }
-        if (usageSections.size > 1) {
-            throw DocoptLanguageError(
-                "More than one \"usage:\" (case-insensitive)."
-            )
-        }
-        usage = usageSections.first()
+        usage = usageSections.single()
         options = Parser.parseDefaults(doc)
         pattern = Parser.parsePattern(Parser.formalUsage(usage), options)
     }
@@ -53,7 +43,7 @@ class Docopt(
     fun parse(vararg argv: String) = parse(listOf(*argv))
 
     private fun doParse(argv: List<String>): Map<String, Any?> {
-        val aaa = Parser.parseArgv(
+        val options = Parser.parseArgv(
             Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
         )
         val patternOptions = pattern.flat(Option::class).toSet()
@@ -61,7 +51,7 @@ class Docopt(
         for (optionsShortcut in pattern.flat(OptionsShortcut::class)) {
             val u = (optionsShortcut as BranchPattern).children
             u.clear()
-            u.addAll(options)
+            u.addAll(this.options)
             val i = u.iterator()
             while (i.hasNext()) {
                 val o = i.next()
@@ -73,9 +63,9 @@ class Docopt(
                 }
             }
         }
-        throwIfHelpRequested(aaa)
-        throwIfVersionRequested(aaa)
-        val m = pattern.fix().match(aaa)
+        throwIfHelpRequested(options)
+        throwIfVersionRequested(options)
+        val m = pattern.fix().match(options)
         if (m.match && m.left.isEmpty()) {
             val u = mutableMapOf<String, Any?>()
             for (p in pattern.flat()) {
@@ -92,14 +82,14 @@ class Docopt(
 
     private fun throwIfVersionRequested(options: List<LeafPattern>) {
         val requested = options.any { "--version" == it.name }
-        if (version != null && version != "" && requested)
-            throw DocoptExitException(0, version, false)
+        if (applicationVersion != null && requested)
+            throw DocoptExitException(0, applicationVersion, false)
     }
 
     private fun throwIfHelpRequested(options: List<LeafPattern>) {
         val requested = options.any {
             ("-h" == it.name || "--help" == it.name) && Py.bool(it.value)
         }
-        if (help && requested) throw DocoptExitException(0, doc.trim(), false)
+        if (addHelpCommand && requested) throw DocoptExitException(0, doc.trim(), false)
     }
 }
