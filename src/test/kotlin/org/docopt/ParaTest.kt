@@ -18,8 +18,12 @@ class ParaTest {
                 val message = String.format("%s\n$ %s", it.doc, quote(it.argv))
                 dynamicTest(message) {
                     val actual: Any = try {
-                        Docopt(it.doc, out = null, err = null, exit = false)
-                            .parse(it.argv)
+                        Docopt(
+                            doc = it.doc,
+                            stdout = null,
+                            stderr = null,
+                            exitOnException = false
+                        ).parse(it.argv)
                     } catch (e: DocoptExitException) {
                         "user-error"
                     }

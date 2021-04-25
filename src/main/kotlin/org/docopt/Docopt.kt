@@ -5,9 +5,9 @@ import kotlin.system.exitProcess
 
 class Docopt(
     private val doc: String,
-    private val exit: Boolean = true,
-    private val out: PrintStream? = System.out,
-    private val err: PrintStream? = System.err,
+    private val exitOnException: Boolean = true,
+    private val stdout: PrintStream? = System.out,
+    private val stderr: PrintStream? = System.err,
     private val addHelpCommand: Boolean = true,
     private val applicationVersion: String? = null,
     private val optionsFirst: Boolean = false
@@ -19,9 +19,8 @@ class Docopt(
     fun parse(argv: List<String>): Map<String, Any?> = try {
         doParse(argv)
     } catch (e: DocoptExitException) {
-        if (!exit) throw e
-        val ps = if (e.exitCode == 0) out else err
-        ps?.let {
+        if (!exitOnException) throw e
+        (if (e.exitCode == 0) stdout else stderr)?.let {
             if (e.message != null) {
                 it.println(e.message)
             }
@@ -32,8 +31,6 @@ class Docopt(
         }
         exitProcess(e.exitCode)
     }
-
-    fun parse(vararg argv: String) = parse(listOf(*argv))
 
     private fun doParse(argv: List<String>): Map<String, Any?> {
         val options = Parser.parseArgv(
