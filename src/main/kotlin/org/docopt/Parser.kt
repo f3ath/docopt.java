@@ -17,10 +17,10 @@ internal object Parser {
     fun parseDefaults(doc: String?): MutableList<Option> {
         val defaults = mutableListOf<Option>()
         for (s in parseSection("options:", doc)) {
-            var s = partition(s, ":")[2]
+            val ss = partition(s, ":")[2]
             var split: List<String?>
             val pattern = "\\n *(-\\S+?)"
-            val s1 = "\n" + s
+            val s1 = "\n" + ss
             split = split(pattern, s1).toMutableList()
             split.removeAt(0)
             run {
@@ -32,11 +32,9 @@ internal object Parser {
                 }
                 split = u
             }
-            run {
-                for (sss in split) {
-                    if (sss!!.startsWith("-")) {
-                        defaults.add(parse(sss))
-                    }
+            for (sss in split) {
+                if (sss!!.startsWith("-")) {
+                    defaults.add(parse(sss))
                 }
             }
         }

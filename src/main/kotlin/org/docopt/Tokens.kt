@@ -10,10 +10,10 @@ class Tokens(
     fun current(): String? = if (isEmpty()) null else get(0)
 
     fun throwError(
-        format: String?,
+        format: String,
         vararg args: Any?
     ): IllegalStateException {
-        val message = String.format(format!!, *args)
+        val message = String.format(format, *args)
         if (error == DocoptLanguageError::class.java) {
             throw DocoptLanguageError(message)
         }
