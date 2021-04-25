@@ -73,10 +73,11 @@ class Docopt(
                 }
             }
         }
-        Parser.extras(help, version, aaa, doc)
+        throwIfHelpRequested(aaa)
+        throwIfVersionRequested(aaa)
         val m = pattern.fix().match(aaa)
         if (m.match && m.left.isEmpty()) {
-            val u =  mutableMapOf<String, Any?>()
+            val u = mutableMapOf<String, Any?>()
             for (p in pattern.flat()) {
                 check(p is LeafPattern)
                 u[p.name!!] = p.value
@@ -87,5 +88,18 @@ class Docopt(
             return u
         }
         throw DocoptExitException(exitCode = 1, printUsage = true)
+    }
+
+    private fun throwIfVersionRequested(options: List<LeafPattern>) {
+        val requested = options.any { "--version" == it.name }
+        if (version != null && version != "" && requested)
+            throw DocoptExitException(0, version, false)
+    }
+
+    private fun throwIfHelpRequested(options: List<LeafPattern>) {
+        val requested = options.any {
+            ("-h" == it.name || "--help" == it.name) && Py.bool(it.value)
+        }
+        if (help && requested) throw DocoptExitException(0, doc.trim(), false)
     }
 }

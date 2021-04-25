@@ -111,56 +111,15 @@ internal object Parser {
         name: String,
         source: String?
     ): List<String> {
-        run {
-            val u = findAll(
-                "^([^\\n]*" + name +
-                    "[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)",
-                source!!,
-                Re.IGNORECASE or Re.MULTILINE
-            )
-            for (i in u.indices) {
-                u[i] = u[i].trim { it <= ' ' }
-            }
-            return u
+        val u = findAll(
+            "^([^\\n]*$name[^\\n]*\\n?(?:[ \\t].*?(?:\\n|$))*)",
+            source!!,
+            Re.IGNORECASE or Re.MULTILINE
+        )
+        for (i in u.indices) {
+            u[i] = u[i].trim()
         }
-    }
-
-    fun extras(
-        help: Boolean, version: String?,
-        options: List<LeafPattern>, doc: String
-    ) {
-        var u: Boolean
-        run {
-            u = false
-            if (help) {
-                for (o in options) {
-                    if (("-h" == o.name) or ("--help" == o.name)) {
-                        if (bool(o.value)) {
-                            u = true
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        if (u) {
-            throw DocoptExitException(
-                0, doc.replace("^\\n+|\\n+$".toRegex(), ""),
-                false
-            )
-        }
-        run {
-            u = false
-            if (version != null && version != "") {
-                for (o in options) {
-                    if ("--version" == o.name) {
-                        u = true
-                        break
-                    }
-                }
-            }
-        }
-        if (u) throw DocoptExitException(0, version, false)
+        return u
     }
 
     fun formalUsage(section: String?): String {
