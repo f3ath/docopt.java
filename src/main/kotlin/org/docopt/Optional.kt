@@ -5,14 +5,14 @@ internal open class Optional(children: List<Pattern?>) : BranchPattern(children)
         left: List<LeafPattern>,
         collected: List<LeafPattern>
     ): MatchResult {
-        var ll = left
-        var col = collected
+        var l = left
+        var c = collected
 
         for (pattern in children) {
-            val u = pattern!!.match(ll, col)
-            ll = u.left
-            col = u.collected
+            val u = pattern!!.match(l, c)
+            l = u.left
+            c = u.collected
         }
-        return MatchResult(true, ll, col)
+        return MatchResult(true, l, c)
     }
 }

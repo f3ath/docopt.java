@@ -5,7 +5,6 @@ import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
 import org.docopt.Py.Re.split
 import org.docopt.Py.Re.sub
-import org.docopt.Py.bool
 import org.docopt.Py.isUpper
 import org.docopt.Py.partition
 import org.docopt.Py.split
@@ -58,7 +57,7 @@ internal object Parser {
         }
         val tokens = Tokens(sour2, DocoptLanguageError::class.java)
         val result = parseExpr(tokens, options)
-        if (tokens.current() != null) {
+        if (tokens.isNotEmpty()) {
             throw tokens.throwError("unexpected ending: %s", tokens.joinToString(" "))
         }
         return Required(result)
@@ -70,26 +69,27 @@ internal object Parser {
         optionsFirst: Boolean
     ): List<LeafPattern> {
         val parsed = mutableListOf<LeafPattern>()
-        while (tokens.current() != null) {
-            if ("--" == tokens.current()) {
-                for (v in tokens) {
-                    parsed.add(Argument(null, v))
-                }
+
+        while (tokens.isNotEmpty()) {
+            val token = tokens.first()
+            if ("--" == token) {
+                tokens
+                    .map { Argument(value = it) }
+                    .forEach { parsed.add(it) }
                 return parsed
             }
 
-            // TODO: Why don't we check for tokens.current != "--" here?
-            if (tokens.current()!!.startsWith("--")) {
+            if (token.startsWith("--")) {
                 parsed.addAll(parseLong(tokens, options))
-            } else if (tokens.current()!!.startsWith("-") && "-" != tokens.current()) {
+            } else if (token.startsWith("-") && "-" != token) {
                 parsed.addAll(parseShorts(tokens, options))
             } else if (optionsFirst) {
-                for (v in tokens) {
-                    parsed.add(Argument(null, v))
-                }
+                tokens
+                    .map { Argument(value = it) }
+                    .forEach { parsed.add(it) }
                 return parsed
             } else {
-                parsed.add(Argument(null, tokens.move()))
+                parsed.add(Argument(value = tokens.pop()))
             }
         }
         return parsed
@@ -149,14 +149,14 @@ internal object Parser {
         options: MutableList<Option>
     ): List<Pattern?> {
         var seq = parseSeq(tokens, options)
-        if ("|" != tokens.current()) {
+        if ("|" != tokens.peek()) {
             return seq
         }
         val result: MutableList<Pattern?> =
             if (seq.size > 1) mutableListOf(Required(seq))
             else seq
-        while ("|" == tokens.current()) {
-            tokens.move()
+        while ("|" == tokens.peek()) {
+            tokens.pop()
             seq = parseSeq(tokens, options)
             result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
         }
@@ -168,11 +168,11 @@ internal object Parser {
         options: MutableList<Option>
     ): MutableList<Pattern?> {
         val result = mutableListOf<Pattern?>()
-        while (!arrayOf(null, "]", ")", "|").contains(tokens.current())) {
+        while (!arrayOf(null, "]", ")", "|").contains(tokens.peek())) {
             var atom = parseAtom(tokens, options)
-            if ("..." == tokens.current()) {
+            if ("..." == tokens.peek()) {
                 atom = mutableListOf(OneOrMore(atom))
-                tokens.move()
+                tokens.pop()
             }
             result.addAll(atom)
         }
@@ -183,10 +183,10 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Pattern?> {
-        val token = tokens.current()
+        val token = tokens.first()
         val result: List<Pattern?>
         if ("(" == token || "[" == token) {
-            tokens.move()
+            tokens.pop()
             val matching: String
             val u = parseExpr(tokens, options)
             if ("(" == token) {
@@ -196,24 +196,25 @@ internal object Parser {
                 matching = "]"
                 result = listOf(Optional(u))
             }
-            if (matching != tokens.move()) {
+            if (matching != tokens.pop()) {
                 throw tokens.throwError("unmatched '%s'", token)
             }
             return result
         }
         if ("options" == token) {
-            tokens.move()
+            tokens.pop()
             return listOf(OptionsShortcut())
         }
-        if (token!!.startsWith("--") && "--" != token) {
+        if (token.startsWith("--") && "--" != token) {
             return parseLong(tokens, options)
         }
-        if (token.startsWith("-") && !("-" == token || "--" == token)) {
+        if (token.startsWith("-") && "-" != token && "--" != token) {
             return parseShorts(tokens, options)
         }
-        return if (token.startsWith("<") && token.endsWith(">") || isUpper(token)) {
-            listOf(Argument(tokens.move()))
-        } else listOf(Command(tokens.move()))
+        return if (token.startsWith("<") && token.endsWith(">") || isUpper(token))
+            listOf(Argument(tokens.pop()))
+        else
+            listOf(Command(tokens.pop()))
     }
 
     private fun parseLong(
@@ -223,7 +224,7 @@ internal object Parser {
         val long: String
         val eq: String
         var value: String?
-        val a = partition(tokens.move()!!, "=")
+        val a = partition(tokens.pop()!!, "=")
         long = a[0]
         eq = a[1]
         value = a[2]
@@ -269,14 +270,14 @@ internal object Parser {
                 }
             } else {
                 if (value == null) {
-                    val u = tokens.current()
+                    val u = tokens.peek()
                     if (u == null || "--" == u) {
                         throw tokens.throwError(
                             "%s requires argument",
                             o.long
                         )
                     }
-                    value = tokens.move()
+                    value = tokens.pop()
                 }
             }
             if (tokens.error == DocoptExitException::class.java) {
@@ -290,7 +291,7 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val token = tokens.move()
+        val token = tokens.pop()
         assert(token!!.startsWith("-") && !token.startsWith("--"))
         var left = token.replaceFirst("^-+".toRegex(), "")
         val parsed = mutableListOf<Option>()
@@ -317,12 +318,12 @@ internal object Parser {
                 o = Option(short, u.long, u.argCount, u.value)
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
-                    val u = tokens.current()
+                    val u = tokens.peek()
                     if (u == null || "--" == u) throw tokens.throwError(
                         "%s requires argument",
                         short
                     )
-                    value = tokens.move()
+                    value = tokens.pop()
                 } else {
                     value = left
                     left = ""

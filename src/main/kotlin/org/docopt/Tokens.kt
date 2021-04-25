@@ -5,9 +5,9 @@ class Tokens(
     val error: Class<out Throwable>
 ) : ArrayList<String>(source) {
 
-    fun move(): String? = if (isEmpty()) null else removeAt(0)
+    fun pop(): String? = if (isEmpty()) null else removeAt(0)
 
-    fun current(): String? = if (isEmpty()) null else get(0)
+    fun peek(): String? = if (isEmpty()) null else get(0)
 
     fun throwError(
         format: String,
