@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory
-import java.io.IOException
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -17,13 +16,12 @@ class ParaTest {
             .toList()
             .map {
                 val message = String.format("%s\n$ %s", it.doc, quote(it.argv))
-                println(message)
                 dynamicTest(message) {
                     val actual: Any = try {
                         Docopt(it.doc, out = null, err = null, exit = false)
                             .parse(it.argv)
                     } catch (e: DocoptExitException) {
-                        "\"user-error\""
+                        "user-error"
                     }
                     assertEquals(it.expected, actual)
                 }
@@ -68,13 +66,6 @@ class ParaTest {
         object : TypeReference<Map<String, Any>>() {}
 
     private fun expect(expect: String): Any? =
-        if ("\"user-error\"" == expect) {
-            expect
-        } else try {
-            ObjectMapper().readValue(expect, types)
-        } catch (e: IOException) {
-            throw IllegalStateException(
-                "could not parse JSON object from:\n$expect", e
-            )
-        }
+        if ("\"user-error\"" == expect) "user-error"
+        else ObjectMapper().readValue(expect, types)
 }
