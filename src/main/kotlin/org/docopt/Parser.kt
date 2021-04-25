@@ -61,7 +61,7 @@ internal object Parser {
         val tokens = Tokens(sour2, DocoptLanguageError::class.java)
         val result = parseExpr(tokens, options)
         if (tokens.current() != null) {
-            throw tokens.error("unexpected ending: %s", tokens.joinToString(" "))
+            throw tokens.throwError("unexpected ending: %s", tokens.joinToString(" "))
         }
         return Required(result)
     }
@@ -245,7 +245,7 @@ internal object Parser {
                 result = listOf(Optional(u))
             }
             if (matching != tokens.move()) {
-                throw tokens.error("unmatched '%s'", token)
+                throw tokens.throwError("unmatched '%s'", token)
             }
             return result
         }
@@ -284,13 +284,13 @@ internal object Parser {
             .map { it }
             .filter { it.long == long }.toMutableList()
 
-        if (tokens.getError() == DocoptExitException::class.java && similar.isEmpty()) {
+        if (tokens.error == DocoptExitException::class.java && similar.isEmpty()) {
             options
                 .filter { it.long?.startsWith(long) ?: false }
                 .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
-            throw tokens.error(
+            throw tokens.throwError(
                 "%s is not a unique prefix: %s?", long,
                 similar.map { it.long }.joinToString(", ")
             )
@@ -300,7 +300,7 @@ internal object Parser {
             val argCount = if ("=" == eq) 1 else 0
             o = Option(null, long, argCount)
             options.add(o)
-            if (tokens.getError() == DocoptExitException::class.java) {
+            if (tokens.error == DocoptExitException::class.java) {
                 o = Option(null, long, argCount, if (argCount != 0) value else true)
             }
         } else {
@@ -313,13 +313,13 @@ internal object Parser {
             }
             if (o.argCount == 0) {
                 if (value != null) {
-                    throw tokens.error("%s must not have an argument", o.long)
+                    throw tokens.throwError("%s must not have an argument", o.long)
                 }
             } else {
                 if (value == null) {
                     val u = tokens.current()
                     if (u == null || "--" == u) {
-                        throw tokens.error(
+                        throw tokens.throwError(
                             "%s requires argument",
                             o.long
                         )
@@ -327,7 +327,7 @@ internal object Parser {
                     value = tokens.move()
                 }
             }
-            if (tokens.getError() == DocoptExitException::class.java) {
+            if (tokens.error == DocoptExitException::class.java) {
                 o.value = value ?: true
             }
         }
@@ -349,7 +349,7 @@ internal object Parser {
             options
                 .filter { it.short == short }
                 .forEach { similar.add(it) }
-            if (similar.size > 1) throw tokens.error(
+            if (similar.size > 1) throw tokens.throwError(
                 "%s is specified ambiguously %d times",
                 short, similar.size
             )
@@ -357,7 +357,7 @@ internal object Parser {
             if (similar.size < 1) {
                 o = Option(short, null, 0)
                 options.add(o)
-                if (tokens.getError() == DocoptExitException::class.java) {
+                if (tokens.error == DocoptExitException::class.java) {
                     o = Option(short, null, 0, true)
                 }
             } else {
@@ -366,7 +366,7 @@ internal object Parser {
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
                     val u = tokens.current()
-                    if (u == null || "--" == u) throw tokens.error(
+                    if (u == null || "--" == u) throw tokens.throwError(
                         "%s requires argument",
                         short
                     )
@@ -375,7 +375,7 @@ internal object Parser {
                     value = left
                     left = ""
                 }
-                if (tokens.getError() == DocoptExitException::class.java) {
+                if (tokens.error == DocoptExitException::class.java) {
                     o.value = value ?: true
                 }
             }

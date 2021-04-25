@@ -1,17 +1,15 @@
 package org.docopt
 
-class Tokens(source: List<String>, private val error: Class<out Throwable>) : ArrayList<String>() {
-    init {
-        addAll(source)
-    }
+class Tokens(
+    source: List<String>,
+    val error: Class<out Throwable>
+) : ArrayList<String>(source) {
 
     fun move(): String? = if (isEmpty()) null else removeAt(0)
 
     fun current(): String? = if (isEmpty()) null else get(0)
 
-    fun getError(): Class<out Throwable?> = this.error
-
-    fun error(
+    fun throwError(
         format: String?,
         vararg args: Any?
     ): IllegalStateException {

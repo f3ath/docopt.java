@@ -56,23 +56,19 @@ class Docopt(
         val aaa = Parser.parseArgv(
             Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
         )
-        val patternOptions = pattern
-            .flat(Option::class)
-            .toMutableSet()
+        val patternOptions = pattern.flat(Option::class).toSet()
 
         for (optionsShortcut in pattern.flat(OptionsShortcut::class)) {
-            run {
-                val u = (optionsShortcut as BranchPattern).children
-                u.clear()
-                u.addAll(options)
-                val i = u.iterator()
-                while (i.hasNext()) {
-                    val o = i.next()
-                    for (x in patternOptions) {
-                        if (o == x) {
-                            i.remove()
-                            break
-                        }
+            val u = (optionsShortcut as BranchPattern).children
+            u.clear()
+            u.addAll(options)
+            val i = u.iterator()
+            while (i.hasNext()) {
+                val o = i.next()
+                for (x in patternOptions) {
+                    if (o == x) {
+                        i.remove()
+                        break
                     }
                 }
             }
@@ -80,7 +76,7 @@ class Docopt(
         Parser.extras(help, version, aaa, doc)
         val m = pattern.fix().match(aaa)
         if (m.match && m.left.isEmpty()) {
-            val u: MutableMap<String, Any?> = HashMap()
+            val u =  mutableMapOf<String, Any?>()
             for (p in pattern.flat()) {
                 check(p is LeafPattern)
                 u[p.name!!] = p.value
