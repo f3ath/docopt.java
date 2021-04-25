@@ -57,10 +57,10 @@ class Docopt(
             Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
         )
         val patternOptions = pattern
-            .flat(Option::class.java)
+            .flat(Option::class)
             .toMutableSet()
 
-        for (optionsShortcut in pattern.flat(OptionsShortcut::class.java)) {
+        for (optionsShortcut in pattern.flat(OptionsShortcut::class)) {
             run {
                 val u = (optionsShortcut as BranchPattern).children
                 u.clear()

@@ -1,7 +1,7 @@
 package org.docopt
 
-import org.docopt.Py.bool
 import org.docopt.Py.repr
+import kotlin.reflect.KClass
 
 /**
  * Leaf/terminal node of a pattern tree.
@@ -17,8 +17,8 @@ internal abstract class LeafPattern constructor(
         )
     }
 
-    override fun flat(vararg types: Class<*>): List<Pattern> =
-        if (types.isEmpty() || types.contains(javaClass)) {
+    override fun flat(vararg types: KClass<*>): List<Pattern> =
+        if (types.isEmpty() || types.contains(this::class)) {
             listOf(this)
         } else listOf()
 

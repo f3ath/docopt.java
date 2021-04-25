@@ -1,5 +1,7 @@
 package org.docopt
 
+import kotlin.reflect.KClass
+
 /**
  * Branch/inner node of a pattern tree.
  */
@@ -16,7 +18,7 @@ internal abstract class BranchPattern(children: Collection<Pattern?>) : Pattern(
         if (children.isEmpty()) "" else children.joinToString<Any?>(", ")
     )
 
-    override fun flat(vararg types: Class<*>): List<Pattern> =
-        if (types.contains(javaClass)) listOf(this)
+    override fun flat(vararg types: KClass<*>): List<Pattern> =
+        if (types.contains(this::class)) listOf(this)
         else children.flatMap { it!!.flat(*types) }
 }

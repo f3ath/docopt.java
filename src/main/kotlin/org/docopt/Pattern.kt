@@ -1,6 +1,7 @@
 package org.docopt
 
 import org.docopt.Py.split
+import kotlin.reflect.KClass
 
 internal abstract class Pattern {
     fun fix(): Pattern {
@@ -59,7 +60,7 @@ internal abstract class Pattern {
         }
     }
 
-    abstract fun flat(vararg types: Class<*>): List<Pattern>
+    abstract fun flat(vararg types: KClass<*>): List<Pattern>
 
     abstract fun match(
         left: List<LeafPattern>,
@@ -67,6 +68,7 @@ internal abstract class Pattern {
     ): MatchResult
 
     abstract override fun equals(other: Any?): Boolean
+
     override fun hashCode(): Int = javaClass.hashCode()
 
     companion object {
