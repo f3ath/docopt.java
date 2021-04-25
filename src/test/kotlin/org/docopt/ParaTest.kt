@@ -48,14 +48,14 @@ class ParaTest {
         for (fixture in raw.split("r\"\"\"")) {
             if (fixture.isEmpty()) continue
 
-            val (doc1, _, body) = Py.partition(fixture, "\"\"\"")
+            val (doc1, body) = fixture.split("\"\"\"", limit = 2)
             var first = true
             for (_case in body.split("$")) {
                 if (first) {
                     first = false
                     continue
                 }
-                val (argv1, _, expect) = Py.partition(_case.trim(), "\n")
+                val (argv1, expect) = _case.trim().split("\n", limit = 2)
                 val argv = argv1
                     .trim()
                     .split(Regex("\\s+"))

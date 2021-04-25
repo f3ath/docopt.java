@@ -6,38 +6,36 @@ import org.docopt.Py.Re.findAll
 import org.docopt.Py.Re.split
 import org.docopt.Py.Re.sub
 import org.docopt.Py.isUpper
-import org.docopt.Py.partition
 import org.docopt.Py.split
 import java.io.InputStream
 import java.util.Scanner
 
 internal object Parser {
 
-    fun parseDefaults(doc: String?): MutableList<Option> {
-        val defaults = mutableListOf<Option>()
-        for (s in parseSection("options:", doc)) {
-            val ss = partition(s, ":")[2]
-            var split: List<String?>
-            val pattern = "\\n *(-\\S+?)"
-            val s1 = "\n" + ss
-            split = split(pattern, s1).toMutableList()
-            split.removeAt(0)
-            run {
-                val u = mutableListOf<String?>()
-                var i = 1
-                while (i < split.size) {
-                    u.add(split[i - 1] + split[i])
-                    i += 2
-                }
-                split = u
-            }
-            for (sss in split) {
-                if (sss!!.startsWith("-")) {
-                    defaults.add(parse(sss))
-                }
+    fun parseDefaults(doc: String?): MutableList<Option> = parseSection("options:", doc)
+        .flatMap { generateDefaults(it) }
+        .toMutableList()
+
+    private fun generateDefaults(section: String) = sequence {
+        val ss = section.split(":", limit = 2).last()
+        var split: List<String?>
+        val pattern = "\\n *(-\\S+?)"
+        val s1 = "\n" + ss
+        split = split(pattern, s1).toMutableList()
+        split.removeAt(0)
+        val u = mutableListOf<String?>()
+        var i = 1
+        while (i < split.size) {
+            u.add(split[i - 1] + split[i])
+            i += 2
+        }
+        split = u
+        for (sss in split) {
+            if (sss!!.startsWith("-")) {
+                val element = parse(sss)
+                yield(element)
             }
         }
-        return defaults
     }
 
     fun parsePattern(
@@ -118,12 +116,8 @@ internal object Parser {
     }
 
     fun formalUsage(section: String?): String {
-        var sec = section
-        run {
-            val u = partition(sec!!, ":")
-            sec = u[2]
-        }
-        val pu = split(sec!!)
+        val sec = section!!.split(":", limit = 2).last()
+        val pu = split(sec)
         run {
             val sb = StringBuilder()
             sb.append("( ")
@@ -221,18 +215,11 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val long: String
-        val eq: String
-        var value: String?
-        val a = partition(tokens.pop()!!, "=")
-        long = a[0]
-        eq = a[1]
-        value = a[2]
+        val parts = tokens.pop()!!.split("=", limit = 2)
+        val long = parts.first()
+        var value = if (parts.size > 1) parts.last() else null
 
         assert(long.startsWith("--"))
-        if ("" == eq && "" == value) {
-            value = null
-        }
         val similar = options
             .map { it }
             .filter { it.long == long }.toMutableList()
@@ -249,7 +236,7 @@ internal object Parser {
         }
         var option: Option
         if (similar.size < 1) {
-            val argCount = if ("=" == eq) 1 else 0
+            val argCount = if (parts.size > 1) 1 else 0
             option = Option(null, long, argCount)
             options.add(option)
             if (tokens.error == DocoptExitException::class.java) {
@@ -281,9 +268,9 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val token = tokens.pop()
-        assert(token!!.startsWith("-") && !token.startsWith("--"))
-        var left = token.replaceFirst("^-+".toRegex(), "")
+        val token = tokens.pop()!!
+        assert(token.startsWith("-") && !token.startsWith("--"))
+        var left = token.replaceFirst(Regex("^-+"), "")
         val parsed = mutableListOf<Option>()
         while ("" != left) {
             val short = "-" + left[0]
@@ -296,21 +283,19 @@ internal object Parser {
                 "$short is specified ambiguously ${similar.size} times"
             )
             var o: Option
-            if (similar.size < 1) {
+            if (similar.isEmpty()) {
                 o = Option(short, null, 0)
                 options.add(o)
                 if (tokens.error == DocoptExitException::class.java) {
                     o = Option(short, null, 0, true)
                 }
             } else {
-                val u = similar[0]
+                val u = similar.single()
                 o = Option(short, u.long, u.argCount, u.value)
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
                     val u = tokens.peek()
-                    if (u == null || "--" == u) tokens.throwError(
-                        "$short requires argument"
-                    )
+                    if (u == null || "--" == u) tokens.throwError("$short requires argument")
                     value = tokens.pop()
                 } else {
                     value = left

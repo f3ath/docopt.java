@@ -127,19 +127,6 @@ internal object Py {
         else -> o.toString()
     }
 
-    fun partition(self: String, sep: String): Array<String> {
-        val i = self.indexOf(sep)
-        if (i == -1) {
-            return arrayOf(self, "", "")
-        }
-
-        val j = i + sep.length
-        return arrayOf(
-            self.substring(0, i), sep,
-            if (j < self.length) self.substring(j) else ""
-        )
-    }
-
     fun isUpper(self: String): Boolean {
         val letters = self.toCharArray().filter { it.isLetter() }
         return letters.isNotEmpty() && letters.all { it.isUpperCase() }

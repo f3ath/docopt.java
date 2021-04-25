@@ -53,9 +53,9 @@ internal class Option constructor(
             var value: Any? = false
             var options: String
             val description: String
-            val a = Py.partition(optionDescription.trim(), "  ")
-            options = a[0]
-            description = a[2]
+            val a = optionDescription.trim().split("  ", limit = 2)
+            options = a.first()
+            description = a.last()
             options = options.replace(",", " ").replace("=", " ")
             for (s in Py.split(options)) {
                 when {
