@@ -13,17 +13,18 @@ import java.util.Scanner
 internal object Parser {
 
     fun parseDefaults(doc: String): MutableList<Option> = parseSection("options:", doc)
-        .flatMap { generateDefaults(it) }
+        .map { removeHeader(it) }
+        .flatMap { parseOptions(it) }
         .toMutableList()
 
-    private fun generateDefaults(section: String): Sequence<Option> = removeHeader(section)
+    private fun parseOptions(section: String): Sequence<Option> = section
         .lines()
-        .let { splitOptions(it) }
+        .let { combineOptions(it) }
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .map { parse(it) }
 
-    private fun splitOptions(lines: List<String>) = sequence {
+    private fun combineOptions(lines: List<String>) = sequence {
         var option = lines.first()
         for (line in lines.drop(1)) {
             if (line.trim().startsWith("-")) {
