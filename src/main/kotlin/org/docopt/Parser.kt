@@ -3,7 +3,6 @@ package org.docopt
 import org.docopt.Option.Companion.parse
 import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
-import org.docopt.Py.Re.split
 import org.docopt.Py.isUpper
 import org.docopt.Py.split
 import java.io.InputStream
