@@ -30,7 +30,9 @@ class Docopt(
 
     private fun doParse(argv: List<String>): Map<String, Any?> {
         val options = Parser.parseArgv(
-            Tokens(argv, DocoptExitException::class.java), options.toMutableList(), optionsFirst
+            Tokens(argv, DocoptExitException::class.java),
+            options.toMutableList(),
+            optionsFirst
         )
         val patternOptions = pattern.flat(Option::class).toSet()
 

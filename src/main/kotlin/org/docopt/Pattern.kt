@@ -14,13 +14,8 @@ internal abstract class Pattern {
      * Make pattern-tree tips point to same object if they are equal.
      */
     private fun fixIdentities(uniq: List<Pattern?>? = null) {
-        var u = uniq
-        if (this !is BranchPattern) {
-            return
-        }
-        if (u == null) {
-            u = flat().toMutableList()
-        }
+        if (this !is BranchPattern) return
+        val u = uniq ?: flat().toMutableList()
         for (i in children.indices) {
             val child = children[i]
             if (child !is BranchPattern) {
@@ -36,7 +31,6 @@ internal abstract class Pattern {
      * Fix elements that should accumulate/increment values.
      */
     private fun fixRepeatingArguments() {
-
         val either: MutableList<List<Pattern?>> = mutableListOf()
         for (child in transform(this).children) {
             either.add((child as Required).children.toMutableList())
@@ -93,11 +87,13 @@ internal abstract class Pattern {
                 if (child != null) {
                     children.remove(child)
                     when (child) {
-                        is Either -> child.children!!.forEach {
+                        is Either -> child.children.forEach {
                             groups.add((children + listOf(it)).toMutableList())
                         }
-                        is OneOrMore -> groups.add((child.children!! + child.children + children).toMutableList())
-                        else -> groups.add((child.children!! + children).toMutableList())
+                        is OneOrMore -> groups.add(
+                            (child.children + child.children + children).toMutableList()
+                        )
+                        else -> groups.add((child.children + children).toMutableList())
                     }
                 } else {
                     result.add(children)
