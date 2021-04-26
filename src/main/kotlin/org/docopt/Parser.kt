@@ -129,7 +129,7 @@ internal object Parser {
             return listOf(OptionsShortcut())
         }
         if (token.startsWith("--") && "--" != token) {
-            return parseLong(tokens, options)
+            return listOf(parseLong(tokens, options))
         }
         if (token.startsWith("-") && "-" != token && "--" != token) {
             return parseShorts(tokens, options)
@@ -157,7 +157,7 @@ internal object Parser {
             }
 
             if (token.startsWith("--")) {
-                parsed.addAll(parseLong(tokens, options))
+                parsed.addAll(listOf(parseLong(tokens, options)))
             } else if (token.startsWith("-") && "-" != token) {
                 parsed.addAll(parseShorts(tokens, options))
             } else if (optionsFirst) {
@@ -207,34 +207,33 @@ internal object Parser {
     private fun parseLong(
         tokens: Tokens,
         options: MutableList<Option>
-    ): List<Option> {
+    ): Option {
         val parts = tokens.removeFirst().split("=", limit = 2)
-        val long = parts.first()
+        val name = parts.first()
         var value = if (parts.size > 1) parts.last() else null
 
-        assert(long.startsWith("--"))
         val similar = options
             .map { it }
-            .filter { it.long == long }
+            .filter { it.long == name }
             .toMutableList()
 
         if (tokens.error == DocoptExitException::class.java && similar.isEmpty()) {
             options
-                .filter { it.long?.startsWith(long) ?: false }
+                .filter { it.long?.startsWith(name) ?: false }
                 .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
             tokens.throwError(
-                "$long is not a unique prefix: ${similar.map { it.long }.joinToString(", ")}?"
+                "$name is not a unique prefix: ${similar.map { it.long }.joinToString(", ")}?"
             )
         }
         var option: Option
         if (similar.size < 1) {
             val argCount = if (parts.size > 1) 1 else 0
-            option = Option(null, long, argCount)
+            option = Option(null, name, argCount)
             options.add(option)
             if (tokens.error == DocoptExitException::class.java) {
-                option = Option(null, long, argCount, if (argCount != 0) value else true)
+                option = Option(null, name, argCount, if (argCount != 0) value else true)
             }
         } else {
             option = similar.first().clone()
@@ -255,7 +254,7 @@ internal object Parser {
                 option.value = value ?: true
             }
         }
-        return mutableListOf(option)
+        return option
     }
 
     private fun parseShorts(
