@@ -1,19 +1,19 @@
 package org.docopt
 
-class Tokens(
-    source: List<String>,
-    val error: Class<out Throwable>
-) : ArrayList<String>(source) {
+sealed class Tokens(
+    tokens: List<String>,
+) : ArrayList<String>(tokens) {
+    abstract fun throwError(message: String): Nothing
+}
 
-    fun throwError(
-        message: String
-    ): Nothing {
-        if (error == DocoptLanguageError::class.java) {
-            throw DocoptLanguageError(message)
-        }
-        if (error == DocoptExitException::class.java) {
-            throw DocoptExitException(1, message, true)
-        }
-        throw IllegalStateException("Unexpected exception: ${error.name}")
+class ArgTokens(tokens: List<String>) : Tokens(tokens) {
+    override fun throwError(message: String): Nothing {
+        throw DocoptExitException(1, message, true)
+    }
+}
+
+class UsageTokens(tokens: List<String>) : Tokens(tokens) {
+    override fun throwError(message: String): Nothing {
+        throw DocoptLanguageError(message)
     }
 }

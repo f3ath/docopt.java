@@ -61,7 +61,7 @@ internal object Parser {
         val tokens = Regex("\\S*<[\\w ]+>|\\S+")
             .findAll(wrapped)
             .map { it.value }
-            .let { Tokens(it.toList(), DocoptLanguageError::class.java) }
+            .let { UsageTokens(it.toList()) }
 
         val result = parseExpr(tokens, options)
         if (tokens.isNotEmpty()) {
@@ -217,7 +217,7 @@ internal object Parser {
             .filter { it.long == name }
             .toMutableList()
 
-        if (tokens.error == DocoptExitException::class.java && similar.isEmpty()) {
+        if (tokens is ArgTokens && similar.isEmpty()) {
             options
                 .filter { it.long?.startsWith(name) ?: false }
                 .forEach { similar.add(it) }
@@ -232,7 +232,7 @@ internal object Parser {
             val argCount = if (parts.size > 1) 1 else 0
             option = Option(null, name, argCount)
             options.add(option)
-            if (tokens.error == DocoptExitException::class.java) {
+            if (tokens is ArgTokens) {
                 option = Option(null, name, argCount, if (argCount != 0) value else true)
             }
         } else {
@@ -250,7 +250,7 @@ internal object Parser {
                     value = tokens.removeFirstOrNull()
                 }
             }
-            if (tokens.error == DocoptExitException::class.java) {
+            if (tokens is ArgTokens) {
                 option.value = value ?: true
             }
         }
@@ -279,7 +279,7 @@ internal object Parser {
             if (similar.isEmpty()) {
                 o = Option(short, null, 0)
                 options.add(o)
-                if (tokens.error == DocoptExitException::class.java) {
+                if (tokens is ArgTokens) {
                     o = Option(short, null, 0, true)
                 }
             } else {
@@ -294,7 +294,7 @@ internal object Parser {
                     value = left
                     left = ""
                 }
-                if (tokens.error == DocoptExitException::class.java) {
+                if (tokens is ArgTokens) {
                     o.value = value ?: true
                 }
             }

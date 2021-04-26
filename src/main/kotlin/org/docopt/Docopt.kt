@@ -30,7 +30,7 @@ class Docopt(
 
     private fun doParse(argv: List<String>): Map<String, Any?> {
         val options = Parser.parseArgv(
-            Tokens(argv, DocoptExitException::class.java),
+            ArgTokens(argv),
             options.toMutableList(),
             optionsFirst
         )
