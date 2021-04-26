@@ -223,16 +223,14 @@ internal object Parser {
                 .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
-            throw tokens.error(
-                "$name is not a unique prefix: ${similar.map { it.long }.joinToString(", ")}?"
-            )
+            throw tokens.error("$name is not a unique prefix: ${similar.map { it.long }}?")
         }
         if (similar.isEmpty()) {
             val argCount = if (parts.size > 1) 1 else 0
             val option = Option(null, name, argCount)
             options.add(option) // adding option from args
             if (tokens is ArgTokens) {
-                return  Option(null, name, argCount, if (argCount != 0) value else true)
+                return Option(null, name, argCount, if (argCount != 0) value else true)
             }
             return option
         }
@@ -241,14 +239,12 @@ internal object Parser {
             if (value != null) {
                 throw tokens.error("${option.long} must not have an argument")
             }
-        } else {
-            if (value == null) {
-                val u = tokens.firstOrNull()
-                if (u == null || "--" == u) {
-                    throw tokens.error("${option.long} requires argument")
-                }
-                value = tokens.removeFirstOrNull()
+        } else if (value == null) {
+            val token = tokens.firstOrNull()
+            if (token == null || "--" == token) {
+                throw tokens.error("${option.long} requires argument")
             }
+            value = tokens.removeFirstOrNull()
         }
         if (tokens is ArgTokens) {
             option.value = value ?: true
