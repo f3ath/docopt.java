@@ -14,7 +14,7 @@ class Docopt(
 ) {
     private val usage = Parser.findSections("usage:", doc).single()
     private val options = Parser.parseOptions(doc)
-    private val pattern = Parser.parsePattern(usage, options)
+    private val pattern = Parser.parseUsageSection(usage, options)
 
     fun parse(argv: List<String>) = try {
         doParse(argv)

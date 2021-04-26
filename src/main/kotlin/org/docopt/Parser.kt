@@ -17,17 +17,17 @@ internal object Parser {
         .toMutableList()
 
     private fun dropHeader(section: String) =
-        section.split("options:", limit = 2, ignoreCase = true).last()
+        section.split(":", limit = 2, ignoreCase = true).last()
 
     private fun parseOptionsFromSection(section: String) =
         section
             .lines()
-            .let { combineOptions(it) }
+            .let { mergeMultilineOptions(it) }
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .map { parse(it) }
 
-    private fun combineOptions(lines: List<String>) = sequence {
+    private fun mergeMultilineOptions(lines: List<String>) = sequence {
         var option = lines.first()
         for (line in lines.drop(1)) {
             if (line.trim().startsWith("-")) {
@@ -40,11 +40,11 @@ internal object Parser {
         yield(option)
     }
 
-    fun parsePattern(
-        source: String,
+    fun parseUsageSection(
+        usage: String,
         options: MutableList<Option>
     ): Required {
-        val formal = formalUsage(source)
+        val formal = formalUsage(usage)
         val wrapped =
             Regex(
                 listOf(
@@ -68,6 +68,42 @@ internal object Parser {
             tokens.throwError("unexpected ending: ${tokens.joinToString(" ")}")
         }
         return Required(result)
+    }
+
+    private fun parseExpr(
+        tokens: Tokens,
+        options: MutableList<Option>
+    ): List<Pattern> {
+        var seq = parseSeq(tokens, options).toMutableList()
+        if ("|" != tokens.firstOrNull()) {
+            return seq
+        }
+        val result: MutableList<Pattern> =
+            if (seq.size > 1) mutableListOf(Required(seq))
+            else seq
+        while ("|" == tokens.firstOrNull()) {
+            tokens.shift()
+            seq = parseSeq(tokens, options).toMutableList()
+            result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
+        }
+        return if (result.size > 1) listOf(Either(result)) else result
+    }
+
+    private fun parseSeq(
+        tokens: Tokens,
+        options: MutableList<Option>
+    ): List<Pattern> {
+        val result = mutableListOf<Pattern>()
+
+        while (tokens.isNotEmpty() && !arrayOf("]", ")", "|").contains(tokens.first())) {
+            var atom = parseAtom(tokens, options)
+            if ("..." == tokens.firstOrNull()) {
+                atom = mutableListOf(OneOrMore(atom))
+                tokens.shift()
+            }
+            result.addAll(atom)
+        }
+        return result
     }
 
     fun parseArgv(
@@ -134,47 +170,12 @@ internal object Parser {
         }
         .joinToString(" | ") { "( $it )" }
 
-    private fun parseExpr(
-        tokens: Tokens,
-        options: MutableList<Option>
-    ): List<Pattern?> {
-        var seq = parseSeq(tokens, options)
-        if ("|" != tokens.firstOrNull()) {
-            return seq
-        }
-        val result: MutableList<Pattern?> =
-            if (seq.size > 1) mutableListOf(Required(seq))
-            else seq
-        while ("|" == tokens.firstOrNull()) {
-            tokens.shift()
-            seq = parseSeq(tokens, options)
-            result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
-        }
-        return if (result.size > 1) listOf(Either(result)) else result
-    }
-
-    private fun parseSeq(
-        tokens: Tokens,
-        options: MutableList<Option>
-    ): MutableList<Pattern?> {
-        val result = mutableListOf<Pattern?>()
-        while (!arrayOf(null, "]", ")", "|").contains(tokens.firstOrNull())) {
-            var atom = parseAtom(tokens, options)
-            if ("..." == tokens.firstOrNull()) {
-                atom = mutableListOf(OneOrMore(atom))
-                tokens.shift()
-            }
-            result.addAll(atom)
-        }
-        return result
-    }
-
     private fun parseAtom(
         tokens: Tokens,
         options: MutableList<Option>
-    ): List<Pattern?> {
+    ): List<Pattern> {
         val token = tokens.first()
-        val result: List<Pattern?>
+        val result: List<Pattern>
         if ("(" == token || "[" == token) {
             tokens.shift()
             val matching: String
@@ -305,7 +306,6 @@ internal object Parser {
         }
         return parsed
     }
-
 
     private fun isUpper(self: String): Boolean {
         val letters = self.toCharArray().filter { it.isLetter() }
