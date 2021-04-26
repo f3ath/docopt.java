@@ -65,7 +65,7 @@ internal object Parser {
 
         val result = parseExpr(tokens, options)
         if (tokens.isNotEmpty()) {
-            tokens.throwError("unexpected ending: ${tokens.joinToString(" ")}")
+            throw tokens.error("unexpected ending: ${tokens.joinToString(" ")}")
         }
         return Required(result)
     }
@@ -120,7 +120,7 @@ internal object Parser {
             }
             return result.also {
                 if (tokens.removeFirstOrNull() != matchingBrace[token]) {
-                    tokens.throwError("unmatched '$token'")
+                    throw tokens.error("unmatched '$token'")
                 }
             }
         }
@@ -223,36 +223,35 @@ internal object Parser {
                 .forEach { similar.add(it) }
         }
         if (similar.size > 1) {
-            tokens.throwError(
+            throw tokens.error(
                 "$name is not a unique prefix: ${similar.map { it.long }.joinToString(", ")}?"
             )
         }
-        var option: Option
-        if (similar.size < 1) {
+        if (similar.isEmpty()) {
             val argCount = if (parts.size > 1) 1 else 0
-            option = Option(null, name, argCount)
-            options.add(option)
+            val option = Option(null, name, argCount)
+            options.add(option) // adding option from args
             if (tokens is ArgTokens) {
-                option = Option(null, name, argCount, if (argCount != 0) value else true)
+                return  Option(null, name, argCount, if (argCount != 0) value else true)
+            }
+            return option
+        }
+        val option = similar.first().clone()
+        if (option.argCount == 0) {
+            if (value != null) {
+                throw tokens.error("${option.long} must not have an argument")
             }
         } else {
-            option = similar.first().clone()
-            if (option.argCount == 0) {
-                if (value != null) {
-                    tokens.throwError("${option.long} must not have an argument")
+            if (value == null) {
+                val u = tokens.firstOrNull()
+                if (u == null || "--" == u) {
+                    throw tokens.error("${option.long} requires argument")
                 }
-            } else {
-                if (value == null) {
-                    val u = tokens.firstOrNull()
-                    if (u == null || "--" == u) {
-                        tokens.throwError("${option.long} requires argument")
-                    }
-                    value = tokens.removeFirstOrNull()
-                }
+                value = tokens.removeFirstOrNull()
             }
-            if (tokens is ArgTokens) {
-                option.value = value ?: true
-            }
+        }
+        if (tokens is ArgTokens) {
+            option.value = value ?: true
         }
         return option
     }
@@ -272,7 +271,7 @@ internal object Parser {
             options
                 .filter { it.short == short }
                 .forEach { similar.add(it) }
-            if (similar.size > 1) tokens.throwError(
+            if (similar.size > 1) throw tokens.error(
                 "$short is specified ambiguously ${similar.size} times"
             )
             var o: Option
@@ -288,7 +287,7 @@ internal object Parser {
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
                     val tok = tokens.firstOrNull()
-                    if (tok == null || "--" == tok) tokens.throwError("$short requires argument")
+                    if (tok == null || "--" == tok) throw tokens.error("$short requires argument")
                     value = tokens.removeFirstOrNull()
                 } else {
                     value = left
