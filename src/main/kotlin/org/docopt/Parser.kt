@@ -4,7 +4,6 @@ import org.docopt.Option.Companion.parse
 import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
 import org.docopt.Py.isUpper
-import org.docopt.Py.split
 import java.io.InputStream
 import java.util.Scanner
 import java.util.regex.Pattern.compile
@@ -110,22 +109,18 @@ internal object Parser {
         return u.map { it.trim() }
     }
 
-    fun formalUsage(section: String?): String {
-        val sec = section!!.split(":", limit = 2).last()
-        val pu = split(sec)
-        val sb = StringBuilder()
-        sb.append("( ")
-        val u: String = pu.removeAt(0)
-        if (pu.isNotEmpty()) {
-            for (s in pu) {
-                if (s == u) sb.append(") | (") else sb.append(s)
-                sb.append(" ")
-            }
-            sb.setLength(sb.length - 1)
+    fun formalUsage(section: String): String = section
+        .split(":", limit = 2)
+        .last()
+        .lines()
+        .map {
+            it
+                .trim()
+                .split(Regex("\\s+"))
+                .drop(1) // program name
+                .joinToString(" ")
         }
-        sb.append(" )")
-        return sb.toString()
-    }
+        .joinToString(" | ") { "( $it )" }
 
     private fun parseExpr(
         tokens: Tokens,
