@@ -7,13 +7,10 @@ sealed class Tokens(
 }
 
 class ArgTokens(tokens: List<String>) : Tokens(tokens) {
-    override fun throwError(message: String): Nothing {
-        throw DocoptExitException(1, message, true)
-    }
+    override fun throwError(message: String) =
+        throw DocoptExitException(exitCode = 1, message = message, printUsage = true)
 }
 
 class UsageTokens(tokens: List<String>) : Tokens(tokens) {
-    override fun throwError(message: String): Nothing {
-        throw DocoptLanguageError(message)
-    }
+    override fun throwError(message: String) = throw DocoptLanguageError(message)
 }
