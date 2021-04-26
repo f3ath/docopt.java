@@ -12,12 +12,11 @@ class Docopt(
     private val applicationVersion: String? = null,
     private val optionsFirst: Boolean = false
 ) {
-    private val usage: String = Parser.parseSection("usage:", doc).single()
+    private val usage = Parser.findSections("usage:", doc).single()
     private val options = Parser.parseOptions(doc)
-    private val pattern: Required =
-        Parser.parsePattern(usage, options)
+    private val pattern = Parser.parsePattern(usage, options)
 
-    fun parse(argv: List<String>): Map<String, Any?> = try {
+    fun parse(argv: List<String>) = try {
         doParse(argv)
     } catch (e: DocoptExitException) {
         if (!exitOnException) throw e
@@ -35,7 +34,7 @@ class Docopt(
             options.toMutableList(),
             optionsFirst
         )
-        val patternOptions = pattern.flat(Option::class).toSet()
+        val patternOptions = pattern.flat(Option::class)
 
         for (optionsShortcut in pattern.flat(OptionsShortcut::class)) {
             val u = (optionsShortcut as BranchPattern).children

@@ -8,7 +8,10 @@ import java.util.Scanner
 import kotlin.text.RegexOption.MULTILINE
 
 internal object Parser {
-    fun parseOptions(doc: String) = parseSection("options:", doc)
+    /**
+     * Parses the "*options:" sections
+     */
+    fun parseOptions(doc: String) = findSections("options:", doc)
         .map { dropHeader(it) }
         .flatMap { parseOptionsFromSection(it) }
         .toMutableList()
@@ -106,7 +109,7 @@ internal object Parser {
         }
     }
 
-    fun parseSection(
+    fun findSections(
         name: String,
         source: String
     ): List<String> {
