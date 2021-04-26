@@ -7,6 +7,7 @@ import org.docopt.Py.isUpper
 import java.io.InputStream
 import java.util.Scanner
 import java.util.regex.Pattern.compile
+import kotlin.text.RegexOption.MULTILINE
 
 internal object Parser {
     fun parseOptions(doc: String) = parseSection("options:", doc)
@@ -42,9 +43,19 @@ internal object Parser {
         source: String,
         options: MutableList<Option>
     ): Required {
-        val wrapped = compile("([\\[\\]()|]|\\.\\.\\.)")
-            .matcher(source)
-            .replaceAll(" $1 ")
+
+        val wrapped =
+            Regex(
+                listOf(
+                    "\\.\\.\\.",
+                    "\\[",
+                    "\\]",
+                    "\\(",
+                    "\\)",
+                    "\\|"
+                ).joinToString("|"),
+                MULTILINE
+            ).replace(source) { " ${it.value} " }
 
         val tokens = Regex("\\S*<[\\w ]+>|\\S+")
             .findAll(wrapped)
@@ -84,7 +95,7 @@ internal object Parser {
                     .forEach { parsed.add(it) }
                 return parsed
             } else {
-                parsed.add(Argument(value = tokens.pop()))
+                parsed.add(Argument(value = tokens.shift()))
             }
         }
         return parsed
@@ -127,14 +138,14 @@ internal object Parser {
         options: MutableList<Option>
     ): List<Pattern?> {
         var seq = parseSeq(tokens, options)
-        if ("|" != tokens.peek()) {
+        if ("|" != tokens.firstOrNull()) {
             return seq
         }
         val result: MutableList<Pattern?> =
             if (seq.size > 1) mutableListOf(Required(seq))
             else seq
-        while ("|" == tokens.peek()) {
-            tokens.pop()
+        while ("|" == tokens.firstOrNull()) {
+            tokens.shift()
             seq = parseSeq(tokens, options)
             result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
         }
@@ -146,11 +157,11 @@ internal object Parser {
         options: MutableList<Option>
     ): MutableList<Pattern?> {
         val result = mutableListOf<Pattern?>()
-        while (!arrayOf(null, "]", ")", "|").contains(tokens.peek())) {
+        while (!arrayOf(null, "]", ")", "|").contains(tokens.firstOrNull())) {
             var atom = parseAtom(tokens, options)
-            if ("..." == tokens.peek()) {
+            if ("..." == tokens.firstOrNull()) {
                 atom = mutableListOf(OneOrMore(atom))
-                tokens.pop()
+                tokens.shift()
             }
             result.addAll(atom)
         }
@@ -164,7 +175,7 @@ internal object Parser {
         val token = tokens.first()
         val result: List<Pattern?>
         if ("(" == token || "[" == token) {
-            tokens.pop()
+            tokens.shift()
             val matching: String
             val u = parseExpr(tokens, options)
             if ("(" == token) {
@@ -174,13 +185,13 @@ internal object Parser {
                 matching = "]"
                 result = listOf(Optional(u))
             }
-            if (matching != tokens.pop()) {
+            if (matching != tokens.shift()) {
                 tokens.throwError("unmatched '$token'")
             }
             return result
         }
         if ("options" == token) {
-            tokens.pop()
+            tokens.shift()
             return listOf(OptionsShortcut())
         }
         if (token.startsWith("--") && "--" != token) {
@@ -190,16 +201,16 @@ internal object Parser {
             return parseShorts(tokens, options)
         }
         return if (token.startsWith("<") && token.endsWith(">") || isUpper(token))
-            listOf(Argument(tokens.pop()))
+            listOf(Argument(tokens.shift()))
         else
-            listOf(Command(tokens.pop()))
+            listOf(Command(tokens.shift()))
     }
 
     private fun parseLong(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val parts = tokens.pop()!!.split("=", limit = 2)
+        val parts = tokens.shift()!!.split("=", limit = 2)
         val long = parts.first()
         var value = if (parts.size > 1) parts.last() else null
 
@@ -234,11 +245,11 @@ internal object Parser {
                 }
             } else {
                 if (value == null) {
-                    val u = tokens.peek()
+                    val u = tokens.firstOrNull()
                     if (u == null || "--" == u) {
                         tokens.throwError("${option.long} requires argument")
                     }
-                    value = tokens.pop()
+                    value = tokens.shift()
                 }
             }
             if (tokens.error == DocoptExitException::class.java) {
@@ -252,7 +263,7 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val token = tokens.pop()!!
+        val token = tokens.shift()!!
         assert(token.startsWith("-") && !token.startsWith("--"))
         var left = token.replaceFirst(Regex("^-+"), "")
         val parsed = mutableListOf<Option>()
@@ -278,9 +289,9 @@ internal object Parser {
                 o = Option(short, u.long, u.argCount, u.value)
                 var value: String? = null
                 if (o.argCount != 0) if ("" == left) {
-                    val tok = tokens.peek()
+                    val tok = tokens.firstOrNull()
                     if (tok == null || "--" == tok) tokens.throwError("$short requires argument")
-                    value = tokens.pop()
+                    value = tokens.shift()
                 } else {
                     value = left
                     left = ""
