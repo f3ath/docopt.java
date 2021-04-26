@@ -5,8 +5,6 @@ class Tokens(
     val error: Class<out Throwable>
 ) : ArrayList<String>(source) {
 
-    fun shift(): String? = if (isEmpty()) null else removeAt(0)
-
     fun throwError(
         message: String
     ): Nothing {

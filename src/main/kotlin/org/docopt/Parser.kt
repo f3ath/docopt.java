@@ -82,7 +82,7 @@ internal object Parser {
             if (seq.size > 1) mutableListOf(Required(seq))
             else seq
         while ("|" == tokens.firstOrNull()) {
-            tokens.shift()
+            tokens.removeFirstOrNull()
             seq = parseSeq(tokens, options).toMutableList()
             result.addAll(if (seq.size > 1) listOf(Required(seq)) else seq)
         }
@@ -92,18 +92,52 @@ internal object Parser {
     private fun parseSeq(
         tokens: Tokens,
         options: MutableList<Option>
-    ): List<Pattern> {
-        val result = mutableListOf<Pattern>()
-
-        while (tokens.isNotEmpty() && !arrayOf("]", ")", "|").contains(tokens.first())) {
-            var atom = parseAtom(tokens, options)
+    ) = sequence {
+        while (tokens.firstOrNull() !in arrayOf(null, "]", ")", "|")) {
+            val atom = parseAtom(tokens, options)
             if ("..." == tokens.firstOrNull()) {
-                atom = mutableListOf(OneOrMore(atom))
-                tokens.shift()
+                yield(OneOrMore(atom))
+                tokens.removeFirstOrNull()
+            } else {
+                yieldAll(atom)
             }
-            result.addAll(atom)
         }
-        return result
+    }
+
+    private fun parseAtom(
+        tokens: Tokens,
+        options: MutableList<Option>
+    ): List<Pattern> {
+        val token = tokens.first()
+        val matchingBrace = mapOf("(" to ")", "[" to "]")
+        if ("(" == token || "[" == token) {
+            tokens.removeFirstOrNull()
+            val patterns = parseExpr(tokens, options)
+            val result = if ("(" == token) {
+                listOf(Required(patterns))
+            } else {
+                listOf(Optional(patterns))
+            }
+            return result.also {
+                if (tokens.removeFirstOrNull() != matchingBrace[token]) {
+                    tokens.throwError("unmatched '$token'")
+                }
+            }
+        }
+        if ("options" == token) {
+            tokens.removeFirstOrNull()
+            return listOf(OptionsShortcut())
+        }
+        if (token.startsWith("--") && "--" != token) {
+            return parseLong(tokens, options)
+        }
+        if (token.startsWith("-") && "-" != token && "--" != token) {
+            return parseShorts(tokens, options)
+        }
+        return if (token.startsWith("<") && token.endsWith(">") || isUpper(token))
+            listOf(Argument(tokens.removeFirstOrNull()))
+        else
+            listOf(Command(tokens.removeFirstOrNull()))
     }
 
     fun parseArgv(
@@ -132,7 +166,7 @@ internal object Parser {
                     .forEach { parsed.add(it) }
                 return parsed
             } else {
-                parsed.add(Argument(value = tokens.shift()))
+                parsed.add(Argument(value = tokens.removeFirstOrNull()))
             }
         }
         return parsed
@@ -170,56 +204,19 @@ internal object Parser {
         }
         .joinToString(" | ") { "( $it )" }
 
-    private fun parseAtom(
-        tokens: Tokens,
-        options: MutableList<Option>
-    ): List<Pattern> {
-        val token = tokens.first()
-        val result: List<Pattern>
-        if ("(" == token || "[" == token) {
-            tokens.shift()
-            val matching: String
-            val u = parseExpr(tokens, options)
-            if ("(" == token) {
-                matching = ")"
-                result = listOf(Required(u))
-            } else {
-                matching = "]"
-                result = listOf(Optional(u))
-            }
-            if (matching != tokens.shift()) {
-                tokens.throwError("unmatched '$token'")
-            }
-            return result
-        }
-        if ("options" == token) {
-            tokens.shift()
-            return listOf(OptionsShortcut())
-        }
-        if (token.startsWith("--") && "--" != token) {
-            return parseLong(tokens, options)
-        }
-        if (token.startsWith("-") && "-" != token && "--" != token) {
-            return parseShorts(tokens, options)
-        }
-        return if (token.startsWith("<") && token.endsWith(">") || isUpper(token))
-            listOf(Argument(tokens.shift()))
-        else
-            listOf(Command(tokens.shift()))
-    }
-
     private fun parseLong(
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val parts = tokens.shift()!!.split("=", limit = 2)
+        val parts = tokens.removeFirst().split("=", limit = 2)
         val long = parts.first()
         var value = if (parts.size > 1) parts.last() else null
 
         assert(long.startsWith("--"))
         val similar = options
             .map { it }
-            .filter { it.long == long }.toMutableList()
+            .filter { it.long == long }
+            .toMutableList()
 
         if (tokens.error == DocoptExitException::class.java && similar.isEmpty()) {
             options
@@ -251,7 +248,7 @@ internal object Parser {
                     if (u == null || "--" == u) {
                         tokens.throwError("${option.long} requires argument")
                     }
-                    value = tokens.shift()
+                    value = tokens.removeFirstOrNull()
                 }
             }
             if (tokens.error == DocoptExitException::class.java) {
@@ -265,7 +262,7 @@ internal object Parser {
         tokens: Tokens,
         options: MutableList<Option>
     ): List<Option> {
-        val token = tokens.shift()!!
+        val token = tokens.removeFirstOrNull()!!
         assert(token.startsWith("-") && !token.startsWith("--"))
         var left = token.replaceFirst(Regex("^-+"), "")
         val parsed = mutableListOf<Option>()
@@ -293,7 +290,7 @@ internal object Parser {
                 if (o.argCount != 0) if ("" == left) {
                     val tok = tokens.firstOrNull()
                     if (tok == null || "--" == tok) tokens.throwError("$short requires argument")
-                    value = tokens.shift()
+                    value = tokens.removeFirstOrNull()
                 } else {
                     value = left
                     left = ""
