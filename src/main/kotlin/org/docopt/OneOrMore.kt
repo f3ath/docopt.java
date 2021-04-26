@@ -17,9 +17,9 @@ internal class OneOrMore(children: List<Pattern?>) : BranchPattern(children) {
             if (l == ll) break
             ll = l
         }
-        return if (times >= 1)
+        return if (times > 0)
             MatchResult(true, l, c)
         else
-            MatchResult(false, left, collected)
+            MatchResult(false, left, c)
     }
 }

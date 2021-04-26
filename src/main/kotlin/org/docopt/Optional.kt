@@ -9,9 +9,9 @@ internal open class Optional(children: List<Pattern?>) : BranchPattern(children)
         var c = collected
 
         for (pattern in children) {
-            val u = pattern!!.match(l, c)
-            l = u.left
-            c = u.collected
+            val result = pattern!!.match(l, c)
+            l = result.left
+            c = result.collected
         }
         return MatchResult(true, l, c)
     }
