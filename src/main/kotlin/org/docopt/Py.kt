@@ -47,7 +47,7 @@ internal object Py {
         is Boolean -> o
         is String -> "" != o
         is Array<*> -> (o).size != 0
-        is Collection<*> -> !o.isEmpty()
+        is Collection<*> -> o.isNotEmpty()
         is Map<*, *> -> o.isNotEmpty()
         is Number -> when (o) {
             is Int -> o != 0
@@ -71,12 +71,4 @@ internal object Py {
         is Array<*> -> Arrays.toString(o)
         else -> o.toString()
     }
-
-    fun isUpper(self: String): Boolean {
-        val letters = self.toCharArray().filter { it.isLetter() }
-        return letters.isNotEmpty() && letters.all { it.isUpperCase() }
-    }
-
-    fun split(self: String): MutableList<String> =
-        self.trim().split("\\s+".toRegex()).toMutableList()
 }

@@ -1,6 +1,5 @@
 package org.docopt
 
-import org.docopt.Py.split
 import kotlin.reflect.KClass
 
 internal abstract class Pattern {
@@ -43,7 +42,7 @@ internal abstract class Pattern {
                         if (e.value == null) {
                             e.value = mutableListOf<Any>()
                         } else if (e.value !is List<*>) {
-                            e.value = split(e.value.toString())
+                            e.value = e.value.toString().trim().split(Regex("\\s+")).toMutableList()
                         }
                     }
                     if (e is Command || e is Option && e.argCount == 0) {

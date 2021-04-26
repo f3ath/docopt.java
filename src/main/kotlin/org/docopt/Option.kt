@@ -57,7 +57,7 @@ internal class Option constructor(
             options = a.first()
             description = a.last()
             options = options.replace(",", " ").replace("=", " ")
-            for (s in Py.split(options)) {
+            for (s in options.trim().split(Regex("\\s+")).toMutableList()) {
                 when {
                     s.startsWith("--") -> long = s
                     s.startsWith("-") -> short = s

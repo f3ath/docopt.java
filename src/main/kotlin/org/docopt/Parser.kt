@@ -3,10 +3,8 @@ package org.docopt
 import org.docopt.Option.Companion.parse
 import org.docopt.Py.Re
 import org.docopt.Py.Re.findAll
-import org.docopt.Py.isUpper
 import java.io.InputStream
 import java.util.Scanner
-import java.util.regex.Pattern.compile
 import kotlin.text.RegexOption.MULTILINE
 
 internal object Parser {
@@ -43,7 +41,7 @@ internal object Parser {
         source: String,
         options: MutableList<Option>
     ): Required {
-
+        val formal = formalUsage(source)
         val wrapped =
             Regex(
                 listOf(
@@ -55,7 +53,7 @@ internal object Parser {
                     "\\|"
                 ).joinToString("|"),
                 MULTILINE
-            ).replace(source) { " ${it.value} " }
+            ).replace(formal) { " ${it.value} " }
 
         val tokens = Regex("\\S*<[\\w ]+>|\\S+")
             .findAll(wrapped)
@@ -120,7 +118,7 @@ internal object Parser {
         return u.map { it.trim() }
     }
 
-    fun formalUsage(section: String): String = section
+    private fun formalUsage(section: String): String = section
         .split(":", limit = 2)
         .last()
         .lines()
@@ -303,5 +301,11 @@ internal object Parser {
             parsed.add(o)
         }
         return parsed
+    }
+
+
+    private fun isUpper(self: String): Boolean {
+        val letters = self.toCharArray().filter { it.isLetter() }
+        return letters.isNotEmpty() && letters.all { it.isUpperCase() }
     }
 }
